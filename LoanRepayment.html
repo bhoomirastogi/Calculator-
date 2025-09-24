@@ -35,9 +35,9 @@
   .sub{margin:8px 0 0;color:var(--muted);font-size:15px}
   .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px}
   @media(max-width:980px){.grid{grid-template-columns:1fr}}
-  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column}
   .panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
-  .panel-body{padding:22px}
+  .panel-body{padding:22px;flex:1}
   .fields{display:grid;gap:16px}
   .row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media(max-width:640px){.row-2{grid-template-columns:1fr}}
@@ -45,12 +45,12 @@
   .field label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
   .control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:15px;background:#fff}
   .control:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--ring);outline:0}
-  .footer-actions{padding:0 22px 22px;display:flex;gap:10px}
+  .footer-actions{padding:0 22px 22px;display:flex;gap:10px;margin-top:auto}
   .btn{flex:1;background:var(--green);color:#001b2e;border:none;border-radius:999px;padding:14px 16px;font-weight:800;cursor:pointer}
   .btn:hover{filter:brightness(0.95)}
   .btn.secondary{background:var(--blue);color:#fff}
   .btn.secondary:hover{background:var(--blue-600)}
-  .result{border:1.5px solid var(--blue);border-radius:var(--radius)}
+  .result{border:1.5px solid var(--blue);border-radius:var(--radius);display:flex;flex-direction:column}
   .result-head{text-align:center;padding:20px;border-bottom:1px solid var(--border)}
   .lead{font-weight:800;color:#5f6470;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
   .amount{font-size:48px;font-weight:900;color:var(--blue);margin:6px 0 2px}
@@ -60,7 +60,7 @@
   .stat{background:#f7f9ff;border:1px solid #dfe3f0;border-radius:14px;padding:14px}
   .stat .k{font-size:11px;color:#7b8494;text-transform:uppercase;letter-spacing:.12em}
   .stat .v{margin-top:6px;font-weight:900;font-size:18px;color:#000}
-  .cta{display:block;margin:0 20px 20px;text-align:center;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-decoration:none}
+  .cta{display:block;margin:0 20px 20px;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none;margin-top:auto}
   .cta:hover{background:var(--blue-600)}
   .chart-card{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
   .chart-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
@@ -74,30 +74,21 @@
   .compare td{padding:12px;border-top:1px solid var(--border);font-weight:600;color:#000}
   .compare tr:nth-child(even){background:#f7f9ff}
   .compare tbody tr:hover{background:#eef4fb}
-  #pdfBtn {
-  background: var(--blue);
-  color: #fff;
-}
+  #pdfBtn {background: var(--blue);color: #fff;}
 </style>
 </head>
 <body>
   
   <div class="wrap" id="exportRoot">
-    <div class="hero">
-      <div>
-        <h1 class="title">Loan Repayment Calculator</h1>
-        <p class="sub">Estimate your repayments and visualise your balance and total costs.</p>
-      </div>
-    </div>
     <div class="grid">
       <section class="panel">
         <div class="panel-head">Enter your details</div>
         <div class="panel-body">
           <div class="fields">
-            <div class="field"><label>Loan amount</label><input class="control" id="amount" type="number" value="450000" step="1000"></div>
+            <div class="field"><label>Loan amount</label><input class="control" id="amount" type="number" value="400000" step="1000"></div>
             <div class="row-2">
               <div class="field"><label>Loan term (years)</label><input class="control" id="term" type="number" value="30"></div>
-              <div class="field"><label>Interest rate (% p.a.)</label><input class="control" id="rate" type="number" value="6.09" step="0.01"></div>
+              <div class="field"><label>Interest rate (% p.a.)</label><input class="control" id="rate" type="number" value="6" step="0.01"></div>
             </div>
             <div class="field">
               <label>Repayment frequency</label>
@@ -132,18 +123,17 @@
           <div class="per" id="perLabel">/month</div>
         </div>
         <div class="stats">
-  <div class="stat"><div class="k">Total Repayments</div><div class="v" id="totalPaid">$0.00</div></div>
-  <div class="stat"><div class="k">Total Interest & Fees</div><div class="v" id="totalInterest">$0.00</div></div>
-  <div class="stat"><div class="k">Years Saved</div><div class="v" id="yearsSaved">0 years</div></div>
-  <div class="stat"><div class="k">Interest Saved</div><div class="v" id="interestSaved">$0.00</div></div>
-</div>
+          <div class="stat"><div class="k">Total Repayments</div><div class="v" id="totalPaid">$0.00</div></div>
+          <div class="stat"><div class="k">Total Interest & Fees</div><div class="v" id="totalInterest">$0.00</div></div>
+          <div class="stat"><div class="k">Years Saved</div><div class="v" id="yearsSaved">0 years</div></div>
+          <div class="stat"><div class="k">Interest Saved</div><div class="v" id="interestSaved">$0.00</div></div>
+        </div>
 
+        <div style="text-align:center; margin:20px 0;">
+          <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo" style="height:60px; width:auto;">
+        </div>
 
-<div style="text-align:center; margin:20px 0;">
-  <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo" style="height:60px; width:auto;">
-</div>
-
-<a href="#" class="cta">Book an appointment</a>
+        <a href="#" class="cta">Book an appointment</a>
 
       </aside>
     </div>
