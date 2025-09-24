@@ -27,12 +27,7 @@
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-  
-  .tag{margin-left:auto;font-style:italic;opacity:.9}
   .wrap{max-width:1200px;margin:0 auto;padding:36px 20px}
-  .hero{display:flex;align-items:end;justify-content:space-between;margin-bottom:22px}
-  .title{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:0;color:var(--blue)}
-  .sub{margin:8px 0 0;color:var(--muted);font-size:15px}
   .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px}
   @media(max-width:980px){.grid{grid-template-columns:1fr}}
   .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column}
@@ -75,11 +70,12 @@
   .compare tr:nth-child(even){background:#f7f9ff}
   .compare tbody tr:hover{background:#eef4fb}
   #pdfBtn {background: var(--blue);color: #fff;}
+  #pdfBtn:hover{background:var(--blue-600)}
 </style>
 </head>
 <body>
-  
-  <div class="wrap" id="exportRoot">
+<section id="exportRoot">
+  <div class="wrap">
     <div class="grid">
       <section class="panel">
         <div class="panel-head">Enter your details</div>
@@ -112,7 +108,7 @@
           </div>
         </div>
         <div class="footer-actions">
-          <button class="btn secondary" id="calcBtn">Recalculate</button>
+          <button class="btn secondary" id="calcBtn">Calculate</button>
           <button class="btn" id="pdfBtn">Download PDF</button>
         </div>
       </section>
@@ -128,13 +124,10 @@
           <div class="stat"><div class="k">Years Saved</div><div class="v" id="yearsSaved">0 years</div></div>
           <div class="stat"><div class="k">Interest Saved</div><div class="v" id="interestSaved">$0.00</div></div>
         </div>
-
         <div style="text-align:center; margin:20px 0;">
           <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo" style="height:60px; width:auto;">
         </div>
-
         <a href="#" class="cta">Book an appointment</a>
-
       </aside>
     </div>
     <section class="chart-card">
@@ -151,6 +144,7 @@
       </div>
     </section>
   </div>
+</section>
 <script>
   const fmtAUD=(n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round(n*100)/100);
   const perLabel=()=>{const f=parseInt(freqEl.value,10);if(f===12)return'/month';if(f===26)return'/fortnight';return'/week'};
@@ -245,7 +239,7 @@
     buildChart();
   }
   function exportWholeUIToPDF(){
-    const root=document.body;
+    const root=document.getElementById('exportRoot');
     const scale=2;
     html2canvas(root,{scale,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
       const imgData=canvas.toDataURL('image/png');
