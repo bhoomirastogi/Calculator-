@@ -7,13 +7,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
   :root{
-    --blue:#003366; --blue-600:#00478a; --green:#54b948; --ink:#1f2937; --muted:#64748b;
-    --bg:#f6f8fb; --card:#ffffff; --border:#e5e7eb; --ring:#c9d7ff; --radius:16px; --shadow:0 14px 36px rgba(0,0,0,.08);
+    --blue:#003366;
+    --blue-600:#00478a;
+    --green:#54b948;
+    --ink:#1f2937;
+    --muted:#64748b;
+    --bg:#f6f8fb;
+    --card:#ffffff;
+    --border:#e5e7eb;
+    --ring:#c9d7ff;
+    --radius:16px;
+    --shadow:0 14px 36px rgba(0,0,0,.08);
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -35,19 +44,37 @@
   .btn:hover{filter:brightness(0.95)}
   .btn.secondary{background:var(--blue);color:#fff}
   .btn.secondary:hover{background:var(--blue-600)}
+
   .result{border:none;border-radius:var(--radius);display:flex;flex-direction:column}
   .result-head{text-align:center;padding:20px;border-bottom:1px solid var(--border)}
   .lead{font-weight:800;color:#5f6470;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+  .amount{font-size:48px;font-weight:900;color:var(--blue);margin:6px 0 2px}
+  .per{color:#7c7f86;font-size:14px}
   .stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px}
   @media(max-width:520px){.stats{grid-template-columns:1fr}}
   .stat{background:#f7f9ff;border:1px solid #dfe3f0;border-radius:14px;padding:14px}
   .stat .k{font-size:11px;color:#7b8494;text-transform:uppercase;letter-spacing:.12em}
   .stat .v{margin-top:6px;font-weight:900;font-size:18px;color:#000}
-  .min{color:#0d7a37}
-  .inc{color:#00478a}
-  .logo-slot{text-align:center;margin:16px 0}
-  .cta{display:block;margin:0 20px 20px;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none;margin-top:auto}
+  .logoWrap{margin:20px 20px 8px}
+  .logoWrap img{display:block;margin:0 auto;height:60px;width:auto}
+  .tagline{margin:0 20px 16px;font-size:14px;font-style:italic;color:#7c7f86;text-align:left;line-height:1.45}
+  .cta{display:block;margin:0 20px 20px;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
   .cta:hover{background:var(--blue-600)}
+
+  .chart-card{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .chart-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+  .chart-body{padding:16px 22px 22px}
+  .chart-wrap{position:relative;width:100%;height:260px}
+  #balanceChart{display:block;width:100%!important;height:100%!important}
+
+  .cmp-section{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .cmp-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+  table.compare{width:100%;border-collapse:collapse}
+  .compare th{background:var(--blue);color:#fff;text-align:left;padding:12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+  .compare td{padding:12px;border-top:1px solid var(--border);font-weight:600;color:#000}
+  .compare tr:nth-child(even){background:#f7f9ff}
+  .compare tbody tr:hover{background:#eef4fb}
+
   #pdfBtn{background:var(--blue);color:#fff}
   #pdfBtn:hover{background:var(--blue-600)}
   #exportRoot .cta{color:#fff!important;background:var(--blue)!important;border-radius:999px!important;text-decoration:none!important}
@@ -55,79 +82,102 @@
   #exportRoot .control:focus{border-color:var(--blue)!important;box-shadow:0 0 0 4px var(--ring)!important;outline:0!important}
   #exportRoot #pdfBtn{background:var(--blue)!important;color:#fff!important}
   #exportRoot #pdfBtn:hover{background:var(--blue-600)!important}
-  .tagline{font-style:italic;color:#6b7280;text-align:left;font-size:14px;margin:10px 20px 20px;line-height:1.5}
 </style>
 </head>
 <body>
-<section class="wrap" id="exportRoot">
-  <div class="grid">
-    <section class="panel">
-      <div class="panel-head">Enter your details</div>
-      <div class="panel-body">
-        <div class="fields">
-          <div class="field"><label>Loan Amount</label><input class="control" id="amount" type="number" value="400000" step="100"></div>
-          <div class="row-2">
-            <div class="field"><label>Interest Rate (% p.a.)</label><input class="control" id="rate" type="number" value="6" step="0.01"></div>
-            <div class="field"><label>Loan Term (years)</label><input class="control" id="term" type="number" value="30" min="1"></div>
-          </div>
-          <div class="field">
-            <label>Repayment Frequency</label>
-            <select class="control" id="freq">
-              <option value="12">Monthly</option>
-              <option value="26">Fortnightly</option>
-              <option value="52">Weekly</option>
-            </select>
+<section id="exportRoot">
+  <div class="wrap">
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head">Enter your details</div>
+        <div class="panel-body">
+          <div class="fields">
+            <div class="field"><label>Loan Amount</label><input class="control" id="amount" type="number" value="400000" step="100"></div>
+            <div class="row-2">
+              <div class="field"><label>Loan Term (years)</label><input class="control" id="term" type="number" value="30" min="1"></div>
+              <div class="field"><label>Interest Rate (% p.a.)</label><input class="control" id="rate" type="number" value="6" step="0.01"></div>
+            </div>
+            <div class="field">
+              <label>Repayment Frequency</label>
+              <select class="control" id="freq">
+                <option value="12">Monthly</option>
+                <option value="26">Fortnightly</option>
+                <option value="52">Weekly</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="panel-head">Extra contribution per payment</div>
-      <div class="panel-body">
-        <div class="fields">
-          <div class="row-2">
-            <div class="field"><label>Extra amount</label><input class="control" id="extra" type="number" value="100" step="1" min="0"></div>
-            <div class="field">
-              <label>Starts after</label>
-              <div class="row-inline">
-                <input class="control" id="startAfter" type="number" value="5" min="0">
-                <select class="control" id="startUnit">
-                  <option value="years">year</option>
-                  <option value="months">month</option>
-                  <option value="periods">payment</option>
-                </select>
+        <div class="panel-head">Extra contribution per payment</div>
+        <div class="panel-body">
+          <div class="fields">
+            <div class="row-2">
+              <div class="field"><label>Extra amount</label><input class="control" id="extra" type="number" value="100" step="1" min="0"></div>
+              <div class="field">
+                <label>Starts after</label>
+                <div class="row-inline">
+                  <input class="control" id="startAfter" type="number" value="5" min="0">
+                  <select class="control" id="startUnit">
+                    <option value="years">year</option>
+                    <option value="months">month</option>
+                    <option value="periods">payment</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="footer-actions">
-        <button class="btn secondary" id="calcBtn">Calculate</button>
-        <button class="btn" id="pdfBtn">Download PDF</button>
+        <div class="footer-actions">
+          <button class="btn secondary" id="calcBtn">Calculate</button>
+          <button class="btn" id="pdfBtn">Download PDF</button>
+        </div>
+      </section>
+
+      <aside class="result panel">
+        <div class="result-head">
+          <div class="lead">Your Increased Repayments</div>
+          <div class="amount" id="incRepTop">$0.00</div>
+          <div class="per" id="perLabel"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">Minimum Repayments</div><div class="v" id="minRep">$0.00</div></div>
+          <div class="stat"><div class="k">Time Saved</div><div class="v" id="timeSaved">0 year, 0 months</div></div>
+          <div class="stat"><div class="k">Interest Saved</div><div class="v" id="intSaved">$0.00</div></div>
+          <div class="stat"><div class="k">Increased Repayments</div><div class="v" id="incRepStat">$0.00</div></div>
+        </div>
+        <div class="logoWrap">
+          <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo">
+        </div>
+        <p class="tagline">“Explore your loan options with our smart calculators, then connect with Intelligent Financial Solutions to find the right deal. We work for you, we work with banks”</p>
+        <a href="https://calendly.com/henryifs/ifs-request-a-callback" class="cta">Book an appointment</a>
+      </aside>
+    </div>
+
+    <section class="chart-card">
+      <div class="chart-head">Loan Balance Chart</div>
+      <div class="chart-body"><div class="chart-wrap"><canvas id="balanceChart"></canvas></div></div>
+    </section>
+
+    <section class="cmp-section">
+      <div class="cmp-head">Compare by frequency</div>
+      <div class="cmp-body">
+        <table class="compare" id="compareTable">
+          <thead><tr><th>Frequency</th><th>Repayment</th><th>Total Repayments</th><th>Total Interest & Fees</th></tr></thead>
+          <tbody>
+            <tr><td>Monthly</td><td id="fPay12">$0</td><td id="fTot12">$0</td><td id="fInt12">$0</td></tr>
+            <tr><td>Fortnightly</td><td id="fPay26">$0</td><td id="fTot26">$0</td><td id="fInt26">$0</td></tr>
+            <tr><td>Weekly</td><td id="fPay52">$0</td><td id="fTot52">$0</td><td id="fInt52">$0</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
-    <aside class="result panel">
-      <div class="result-head">
-        <div class="lead">Your Increased Repayments</div>
-        <div class="v inc" id="incRepTop" style="font-size:28px;font-weight:800;margin-top:8px">$0.00</div>
-      </div>
-      <div class="stats">
-        <div class="stat"><div class="k">Minimum Repayments</div><div class="v min" id="minRep">$0.00</div></div>
-        <div class="stat"><div class="k">Increased Repayments</div><div class="v inc" id="incRep">$0.00</div></div>
-        <div class="stat"><div class="k">Time Saved</div><div class="v" id="timeSaved">0 year, 0 months</div></div>
-        <div class="stat"><div class="k">Interest Saved</div><div class="v" id="intSaved">$0.00</div></div>
-      </div>
-      <div class="logo-slot">
-        <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS" style="height:60px;width:auto"/>
-      </div>
-      <div class="tagline">
-        “Explore your loan options with our smart calculators, then connect with Intelligent Financial Solutions to find the right deal. We work for you, we work with banks"
-      </div>
-      <a href="https://calendly.com/henryifs/ifs-request-a-callback" class="cta">Book an appointment</a>
-    </aside>
   </div>
 </section>
+
 <script>
   const $ = (id)=>document.getElementById(id);
   const fmtAUD=(n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round(n*100)/100);
+  const perLabelText=()=>{const f=parseInt(($('freq')||{value:12}).value,10);if(f===12)return'/month';if(f===26)return'/fortnight';return'/week'};
+
   function pmt(P, annualRate, ppY, years){
     const N = years*ppY, r = annualRate/ppY; if(r===0) return P/N; return P*(r*Math.pow(1+r,N))/(Math.pow(1+r,N)-1);
   }
@@ -144,46 +194,125 @@
     if(unit==='months') return Math.round(val*(ppY/12));
     return Math.max(0, Math.floor(val));
   }
+
+  let chart;
   function recalc(){
     const P = +$('amount').value||0;
+    const years = +$('term').value||0;
     const rate = (+$('rate').value||0)/100;
-    const years= +$('term').value||0;
     const ppY = parseInt($('freq').value,10);
     const extra = +$('extra').value||0;
     const startK = periodsFromStartUnit(+$('startAfter').value||0, $('startUnit').value, ppY);
+
     const N = years*ppY;
     const r = rate/ppY;
     const M = pmt(P, rate, ppY, years);
     const Mp = M + extra;
+
     const totalMinPaid = M*N;
     const totalMinInterest = totalMinPaid - P;
+
     const k = Math.min(startK, N);
     const Pk = balanceAfter(P, r, M, k);
+
     let nAfter = 0, Nprime = 0, totalWithExtra = 0;
     if(Pk<=0){
       Nprime = k; totalWithExtra = M*k; nAfter = 0;
     } else {
-      nAfter = payoffPeriods(Pk, r, Mp);
-      Nprime = k + nAfter;
-      totalWithExtra = M*k + Mp*nAfter;
+      if(Mp <= Pk*r){
+        Nprime = N;
+        totalWithExtra = M*k + Mp*(N-k);
+      } else {
+        nAfter = payoffPeriods(Pk, r, Mp);
+        Nprime = k + nAfter;
+        totalWithExtra = M*k + Mp*nAfter;
+      }
     }
+
     const interestWithExtra = totalWithExtra - P;
     const periodsSaved = Math.max(0, N - Nprime);
     const yearsSavedFloat = periodsSaved/ppY;
     const ySaved = Math.floor(yearsSavedFloat);
     const mSaved = Math.round((yearsSavedFloat - ySaved) * 12);
+
     $('minRep').textContent = fmtAUD(M,2);
-    $('incRep').textContent = fmtAUD(Mp,2);
     $('incRepTop').textContent = fmtAUD(Mp,2);
+    $('incRepStat').textContent = fmtAUD(Mp,2);
     $('timeSaved').textContent = `${ySaved} year, ${mSaved} months`;
     $('intSaved').textContent = fmtAUD(Math.max(0, totalMinInterest - interestWithExtra),2);
+    const per = $('perLabel'); if(per) per.textContent = perLabelText();
+
+    function fillFreq(ppYx){
+      const Nx = years*ppYx;
+      const Mx = pmt(P, rate, ppYx, years);
+      const totalx = Mx*Nx;
+      const intx = totalx - P;
+      document.getElementById('fPay'+ppYx).textContent = fmtAUD(Mx,2);
+      document.getElementById('fTot'+ppYx).textContent = fmtAUD(totalx,2);
+      document.getElementById('fInt'+ppYx).textContent = fmtAUD(intx,2);
+    }
+    fillFreq(12); fillFreq(26); fillFreq(52);
+
+    const labels=[], withExtra=[], withoutExtra=[];
+    const maxYear = Math.max(0, Math.ceil(Nprime/ppY));
+    for(let y=0;y<=Math.max(maxYear, years);y++){
+      const kYear = Math.min(Math.round(y*ppY), Math.ceil(Nprime));
+      const Bw = balanceAfter(P, r, M, Math.min(y*ppY,N));
+      withoutExtra.push(Bw);
+      let Bx;
+      if(kYear<=k){ Bx = balanceAfter(P, r, M, kYear); }
+      else {
+        const t = kYear - k;
+        if(r===0){ Bx = Math.max(Pk - Mp*t, 0); }
+        else { Bx = Math.max(Pk*Math.pow(1+r,t) - Mp*((Math.pow(1+r,t)-1)/r), 0); }
+      }
+      labels.push(String(y));
+      withExtra.push(Bx);
+    }
+
+    const ctx=document.getElementById('balanceChart').getContext('2d');
+    const blueGrad=ctx.createLinearGradient(0,0,0,260); blueGrad.addColorStop(0,'rgba(0,51,102,.5)'); blueGrad.addColorStop(1,'rgba(0,51,102,.05)');
+    const greenGrad=ctx.createLinearGradient(0,0,0,260); greenGrad.addColorStop(0,'rgba(84,185,72,.45)'); greenGrad.addColorStop(1,'rgba(84,185,72,.05)');
+    if(chart) chart.destroy();
+    chart=new Chart(ctx,{type:'line',data:{labels,datasets:[
+      {label:'With Extra',data:withExtra,fill:true,backgroundColor:blueGrad,borderColor:'#00478a',tension:.25,borderWidth:2,pointRadius:0},
+      {label:'Without Extra',data:withoutExtra,fill:true,backgroundColor:greenGrad,borderColor:'#54b948',tension:.25,borderWidth:2,pointRadius:0}
+    ]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,labels:{usePointStyle:true,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{title:(items)=>`Year: ${items[0].label}`,label:(ctx)=>`${ctx.dataset.label}: ${fmtAUD(ctx.parsed.y,2)}`}}},scales:{x:{title:{display:true,text:'Years',color:'#405064',font:{weight:'700'}},grid:{color:'rgba(0,0,0,.06)'}},y:{title:{display:true,text:'Amount Owing',color:'#405064',font:{weight:'700'}},ticks:{callback:(v)=>fmtAUD(v,0)},grid:{color:'rgba(0,0,0,.06)'}}}}});
+  
+    }
+  function exportWholeUIToPDF(){
+    const root=document.getElementById('exportRoot');
+    const scale=2;
+    html2canvas(root,{scale,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+      const imgData=canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf=new jsPDF('p','mm','a4');
+      const pageWidth=pdf.internal.pageSize.getWidth();
+      const pageHeight=pdf.internal.pageSize.getHeight();
+      const imgWidth=pageWidth;
+      const imgHeight=canvas.height * imgWidth / canvas.width;
+      let heightLeft=imgHeight;
+      let position=0;
+      pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight,'','FAST');
+      heightLeft -= pageHeight;
+      while(heightLeft>0){
+        pdf.addPage();
+        position = - (imgHeight - heightLeft);
+        pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight,'','FAST');
+        heightLeft -= pageHeight;
+      }
+      pdf.save('IFS-Extra-Repayment-Calculator.pdf');
+    });
   }
-  $('calcBtn').addEventListener('click',recalc);
-  ['amount','rate','term','freq','extra','startAfter','startUnit'].forEach(id=>{
-    $(id).addEventListener('input',recalc,{passive:true});
-    $(id).addEventListener('change',recalc,{passive:true});
+
+  document.getElementById('calcBtn').addEventListener('click',recalc);
+  ['amount','term','rate','freq','extra','startAfter','startUnit'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener('input',recalc,{passive:true});
+    el.addEventListener('change',recalc,{passive:true});
+    el.addEventListener('keyup',recalc,{passive:true});
   });
-  document.getElementById('pdfBtn').addEventListener('click',()=>{});
+  document.getElementById('pdfBtn').addEventListener('click',exportWholeUIToPDF);
   recalc();
 </script>
 </body>
