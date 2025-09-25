@@ -26,29 +26,41 @@
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  img{max-width:100%;height:auto;display:block}
   .wrap{max-width:1200px;margin:0 auto;padding:36px 20px}
+  @media(max-width:768px){.wrap{padding:24px 16px}}
+  @media(max-width:420px){.wrap{padding:18px 12px}}
+
   .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px}
   @media(max-width:980px){.grid{grid-template-columns:1fr}}
+
   .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column}
-  .panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+  .panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
   .panel-body{padding:22px;flex:1}
+  @media(max-width:640px){.panel-body{padding:18px}}
+
   .fields{display:grid;gap:16px}
   .row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media(max-width:640px){.row-2{grid-template-columns:1fr}}
   .row-inline{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+  @media(max-width:560px){.row-inline{grid-template-columns:1fr;gap:10px}}
+
   .field label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
+  @media(max-width:420px){.field label{font-size:13px}}
   .control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:15px;background:#fff}
   .control:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--ring);outline:0}
-  .footer-actions{padding:0 22px 22px;display:flex;gap:10px;margin-top:auto}
-  .btn{flex:1;background:var(--green);color:#001b2e;border:none;border-radius:999px;padding:14px 16px;font-weight:800;cursor:pointer}
+
+  .footer-actions{padding:0 22px 22px;display:flex;gap:10px;flex-wrap:wrap}
+  .btn{flex:1;background:var(--green);color:#001b2e;border:none;border-radius:999px;padding:14px 16px;font-weight:800;cursor:pointer;min-width:150px}
   .btn:hover{filter:brightness(0.95)}
   .btn.secondary{background:var(--blue);color:#fff}
   .btn.secondary:hover{background:var(--blue-600)}
+  @media(max-width:560px){.btn{flex:1 1 100%;min-width:0}}
 
   .result{border:none;border-radius:var(--radius);display:flex;flex-direction:column}
   .result-head{text-align:center;padding:20px;border-bottom:1px solid var(--border)}
-  .lead{font-weight:800;color:#5f6470;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
-  .amount{font-size:48px;font-weight:900;color:var(--blue);margin:6px 0 2px}
+  .lead{font-weight:800;color:#5f6470;font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  .amount{font-size:clamp(30px,6vw,48px);font-weight:900;color:var(--blue);margin:6px 0 2px}
   .per{color:#7c7f86;font-size:14px}
   .stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px}
   @media(max-width:520px){.stats{grid-template-columns:1fr}}
@@ -56,21 +68,27 @@
   .stat .k{font-size:11px;color:#7b8494;text-transform:uppercase;letter-spacing:.12em}
   .stat .v{margin-top:6px;font-weight:900;font-size:18px;color:#000}
   .logoWrap{margin:20px 20px 8px}
-  .logoWrap img{display:block;margin:0 auto;height:60px;width:auto}
+  .logoWrap img{margin:0 auto;height:60px;width:auto}
   .tagline{margin:0 20px 16px;font-size:14px;font-style:italic;color:#7c7f86;text-align:left;line-height:1.45}
   .cta{display:block;margin:0 20px 20px;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
   .cta:hover{background:var(--blue-600)}
+  @media(max-width:560px){.cta{margin:0 18px 18px}}
 
   .chart-card{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-  .chart-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+  .chart-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
   .chart-body{padding:16px 22px 22px}
-  .chart-wrap{position:relative;width:100%;height:260px}
+  .chart-wrap{position:relative;width:100%;height:320px}
+  @media(max-width:1024px){.chart-wrap{height:300px}}
+  @media(max-width:768px){.chart-wrap{height:260px}}
+  @media(max-width:520px){.chart-wrap{height:220px}}
   #balanceChart{display:block;width:100%!important;height:100%!important}
 
   .cmp-section{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-  .cmp-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
-  table.compare{width:100%;border-collapse:collapse}
-  .compare th{background:var(--blue);color:#fff;text-align:left;padding:12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+  .cmp-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
+  .cmp-body{padding:0 22px 22px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.compare{width:100%;border-collapse:collapse;min-width:800px}
+  .compare th,.compare td{white-space:nowrap}
+  .compare th{background:var(--blue);color:#fff;text-align:left;padding:12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;position:sticky;top:0;z-index:1}
   .compare td{padding:12px;border-top:1px solid var(--border);font-weight:600;color:#000}
   .compare tr:nth-child(even){background:#f7f9ff}
   .compare tbody tr:hover{background:#eef4fb}
@@ -260,26 +278,54 @@
       const Bw = balanceAfter(P, r, M, Math.min(y*ppY,N));
       withoutExtra.push(Bw);
       let Bx;
-      if(kYear<=k){ Bx = balanceAfter(P, r, M, kYear); }
-      else {
+      if(kYear<=k){
+        Bx = balanceAfter(P, r, M, kYear);
+      } else {
         const t = kYear - k;
-        if(r===0){ Bx = Math.max(Pk - Mp*t, 0); }
-        else { Bx = Math.max(Pk*Math.pow(1+r,t) - Mp*((Math.pow(1+r,t)-1)/r), 0); }
+        if(r===0){
+          Bx = Math.max(Pk - Mp*t, 0);
+        } else {
+          Bx = Math.max(Pk*Math.pow(1+r,t) - Mp*((Math.pow(1+r,t)-1)/r), 0);
+        }
       }
       labels.push(String(y));
       withExtra.push(Bx);
     }
 
-    const ctx=document.getElementById('balanceChart').getContext('2d');
+    const canvas = document.getElementById('balanceChart');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+
     const blueGrad=ctx.createLinearGradient(0,0,0,260); blueGrad.addColorStop(0,'rgba(0,51,102,.5)'); blueGrad.addColorStop(1,'rgba(0,51,102,.05)');
     const greenGrad=ctx.createLinearGradient(0,0,0,260); greenGrad.addColorStop(0,'rgba(84,185,72,.45)'); greenGrad.addColorStop(1,'rgba(84,185,72,.05)');
+
     if(chart) chart.destroy();
-    chart=new Chart(ctx,{type:'line',data:{labels,datasets:[
-      {label:'With Extra',data:withExtra,fill:true,backgroundColor:blueGrad,borderColor:'#00478a',tension:.25,borderWidth:2,pointRadius:0},
-      {label:'Without Extra',data:withoutExtra,fill:true,backgroundColor:greenGrad,borderColor:'#54b948',tension:.25,borderWidth:2,pointRadius:0}
-    ]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,labels:{usePointStyle:true,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{title:(items)=>`Year: ${items[0].label}`,label:(ctx)=>`${ctx.dataset.label}: ${fmtAUD(ctx.parsed.y,2)}`}}},scales:{x:{title:{display:true,text:'Years',color:'#405064',font:{weight:'700'}},grid:{color:'rgba(0,0,0,.06)'}},y:{title:{display:true,text:'Amount Owing',color:'#405064',font:{weight:'700'}},ticks:{callback:(v)=>fmtAUD(v,0)},grid:{color:'rgba(0,0,0,.06)'}}}}});
-  
-    }
+    chart=new Chart(ctx,{
+      type:'line',
+      data:{labels,datasets:[
+        {label:'With Extra',data:withExtra,fill:true,backgroundColor:blueGrad,borderColor:'#00478a',tension:.25,borderWidth:2,pointRadius:0},
+        {label:'Without Extra',data:withoutExtra,fill:true,backgroundColor:greenGrad,borderColor:'#54b948',tension:.25,borderWidth:2,pointRadius:0}
+      ]},
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        animation:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{display:true,labels:{usePointStyle:true,boxWidth:10,boxHeight:10}},
+          tooltip:{callbacks:{
+            title:(items)=>`Year: ${items[0].label}`,
+            label:(ctx)=>`${ctx.dataset.label}: ${fmtAUD(ctx.parsed.y,2)}`
+          }}
+        },
+        scales:{
+          x:{title:{display:true,text:'Years',color:'#405064',font:{weight:'700'}},grid:{color:'rgba(0,0,0,.06)'}},
+          y:{title:{display:true,text:'Amount Owing',color:'#405064',font:{weight:'700'}},ticks:{callback:(v)=>fmtAUD(v,0)},grid:{color:'rgba(0,0,0,.06)'}}
+        }
+      }
+    });
+  }
+
   function exportWholeUIToPDF(){
     const root=document.getElementById('exportRoot');
     const scale=2;
