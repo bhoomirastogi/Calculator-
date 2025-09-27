@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Home Loan Offset Calculator • IFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  :root{--blue:#003366;--blue-600:#00478a;--green:#54b948;--ink:#1f2937;--muted:#64748b;--bg:#f6f8fb;--card:#ffffff;--border:#e5e7eb;--ring:#c9d7ff;--radius:16px;--shadow:0 14px 36px rgba(0,0,0,.08)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1200px;margin:0 auto;padding:36px 20px}
+  .title{font-weight:900;font-size:clamp(20px,3vw,26px);color:var(--blue);margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
+  .panel-subhead{padding:10px 0 4px;margin-top:8px;font-weight:800;font-size:18px;letter-spacing:.06em;color:var(--muted)}
+  .panel-subhead.blue{color:var(--blue)}
+  .panel-body{padding:22px}
+  
+  .fields{display:grid;gap:16px}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.row-2{grid-template-columns:1fr}}
+  .field label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
+  .control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:15px;background:#fff}
+  .control:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--ring);outline:0}
+  .footer-actions{padding:0 22px 22px;display:flex;gap:10px;margin-top:auto;flex-wrap:wrap}
+  .btn{flex:1;background:var(--green);color:#001b2e;border:none;border-radius:999px;padding:14px 16px;font-weight:800;cursor:pointer;min-width:180px}
+  .btn:hover{filter:brightness(.95)}
+  .btn.secondary{background:var(--blue);color:#fff}
+  .btn.secondary:hover{background:var(--blue-600)}
+  .result{border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);background:#fff;display:flex;flex-direction:column}
+  .lead{font-weight:800;color:#5f6470;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+  .amount{font-size:clamp(32px,6vw,48px);font-weight:900;color:var(--blue);margin:6px 0 2px}
+  .per{color:#7c7f86;font-size:14px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px}
+  @media(max-width:520px){.stats{grid-template-columns:1fr}}
+  .stat{background:#f7f9ff;border:1px solid #dfe3f0;border-radius:14px;padding:14px}
+  .stat .k{font-size:11px;color:#7b8494;text-transform:uppercase;letter-spacing:.12em}
+  .stat .v{margin-top:6px;font-weight:900;font-size:18px;color:#000}
+  .cta-bar{display:flex;gap:10px;align-items:center;padding:0 20px 20px}
+  .cta{flex:1;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
+  .cta:hover{background:var(--blue-600)}
+  .chart-card{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .chart-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
+  .chart-body{padding:16px 22px 22px}
+  .chart-wrap{position:relative;width:100%;height:360px}
+  @media(max-width:1024px){.chart-wrap{height:320px}}
+  @media(max-width:768px){.chart-wrap{height:280px}}
+  @media(max-width:520px){.chart-wrap{height:220px}}
+  #balanceChart{display:block;width:100%!important;height:100%!important}
+  .cmp-section{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .cmp-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
+  .cmp-body{padding:0 22px 22px;overflow:auto}
+  table.compare{width:100%;border-collapse:collapse;min-width:640px}
+  .compare th{background:var(--blue);color:#fff;text-align:left;padding:12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;position:sticky;top:0}
+  .compare td{padding:12px;border-top:1px solid var(--border);font-weight:600;color:#000}
+  .compare tr:nth-child(even){background:#f7f9ff}
+  .compare tbody tr:hover{background:#eef4fb}
+</style>
+</head>
+<body>
+<section id="exportRoot">
+  <div class="wrap">
+    
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head">Enter your details</div>
+        <div class="panel-body">
+          <div class="fields">
+            <div class="field"><label>Loan Amount</label><input class="control" id="amount" type="number" value="400000" step="1000"></div>
+            <div class="row-2">
+              <div class="field"><label>Interest Rate (% p.a.)</label><input class="control" id="rate" type="number" value="6" step="0.01"></div>
+              <div class="field"><label>Loan Term (years)</label><input class="control" id="term" type="number" value="30"></div>
+            </div>
+            <div class="field">
+              <label>Repayment Frequency</label>
+              <select class="control" id="freq">
+                <option value="12">Monthly</option>
+                <option value="26">Fortnightly</option>
+                <option value="52">Weekly</option>
+              </select>
+            </div>
+            <div class="panel-subhead blue">Enter your Offset Account details</div>
+            <div class="field"><label>Offset Account Balance</label><input class="control" id="offset" type="number" value="20000" step="500"></div>
+          </div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn secondary" id="calcBtn">Calculate</button>
+          <button class="btn secondary" id="pdfBtn">Download PDF</button>
+        </div>
+      </section>
+      <aside class="result">
+        <div style="padding:18px 22px;border-bottom:1px solid var(--border);text-align:center">
+          <div class="lead">Monthly Repayment</div>
+          <div class="amount" id="repayment">$0.00</div>
+          <div class="per" id="perLabel">/month</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">Interest Saved</div><div class="v" id="interestSaved">$0.00</div></div>
+          <div class="stat"><div class="k">Time saved</div><div class="v" id="timeSaved">0 years</div></div>
+          <div class="stat"><div class="k">Revised time</div><div class="v" id="revisedTime">0 years</div></div>
+          <div class="stat"><div class="k">Total Repayments (no offset)</div><div class="v" id="totalPaidBase">$0.00</div></div>
+        </div>
+        <div style="text-align:center; margin:20px 0;">
+          <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo" style="height:60px; width:auto;">
+        </div>
+        <div class="cta-bar">
+          <a href="https://calendly.com/henryifs/ifs-request-a-callback" class="cta">Book an appointment</a>
+        </div>
+      </aside>
+    </div>
+    <section class="chart-card">
+      <div class="chart-head">Loan Balance Chart</div>
+      <div class="chart-body"><div class="chart-wrap"><canvas id="balanceChart"></canvas></div></div>
+    </section>
+   <section class="cmp-section">
+      <div class="cmp-head">Compare by frequency</div>
+      <div class="cmp-body">
+        <table class="compare" id="compareTable">
+          <thead><tr><th>Frequency</th><th>Repayment</th><th>Total Repayments</th><th>Total Interest & Fees</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+</section>
+<script>
+  const amountEl=document.getElementById('amount');
+  const termEl=document.getElementById('term');
+  const rateEl=document.getElementById('rate');
+  const freqEl=document.getElementById('freq');
+  const offsetEl=document.getElementById('offset');
+  const outPay=document.getElementById('repayment');
+  const outPer=document.getElementById('perLabel');
+  const outIS=document.getElementById('interestSaved');
+  const outTS=document.getElementById('timeSaved');
+  const outRT=document.getElementById('revisedTime');
+  const outTPB=document.getElementById('totalPaidBase');
+  const cmpBody=document.querySelector('#compareTable tbody');
+  const fmtAUD=(n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round(n*100)/100);
+  const perLabel=()=>{const f=parseInt(freqEl.value,10);if(f===12)return'/month';if(f===26)return'/fortnight';return'/week'};
+  function pmt(P,annualRate,ppY,years){const n=years*ppY;const r=annualRate/ppY;if(r===0)return P/n;return P*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1)}
+  function simulateWithOffset(P,annualRate,ppY,M,offset){
+    const r=annualRate/ppY;let B=P;let t=0;let totalInterest=0;const yearlyPoints=[{y:0,b:B}];const maxSteps=ppY*yearsEl();
+    while(B>1e-8&&t<10000){const interest=Math.max(B-offset,0)*r;let principal=M-interest;if(principal<=0)return {months:null,interest:null,points:[]};if(principal>B)principal=B;B-=principal;totalInterest+=interest;t++;if(t%ppY===0)yearlyPoints.push({y:t/ppY,b:B<0?0:B});if(t>maxSteps+1200&&B>0)break;}
+    if(yearlyPoints[yearlyPoints.length-1].y<Math.ceil(t/ppY))yearlyPoints.push({y:Math.ceil(t/ppY),b:0});
+    return {months:t,interest:totalInterest,points:yearlyPoints};
+  }
+  function yearsEl(){return +termEl.value||1}
+  let chart;
+  function buildChart(points,M,ppY){
+    const labels=[], bal=[], remain=[];const lastYear=points[points.length-1]?.y||yearsEl();
+    for(let y=0;y<=Math.max(lastYear,yearsEl());y++){const p=points.find(q=>q.y===y);const b=p?p.b:0;const mLeft=Math.max(0,Math.round((points[points.length-1]?.y||0)*ppY - y*ppY));labels.push(String(y));bal.push(b);remain.push(mLeft>0?M*mLeft:0);}
+    const ctx=document.getElementById('balanceChart').getContext('2d');
+    const blueGrad=ctx.createLinearGradient(0,0,0,260);blueGrad.addColorStop(0,'rgba(0,51,102,.5)');blueGrad.addColorStop(1,'rgba(0,51,102,.05)');
+    const greenGrad=ctx.createLinearGradient(0,0,0,260);greenGrad.addColorStop(0,'rgba(84,185,72,.45)');greenGrad.addColorStop(1,'rgba(84,185,72,.05)');
+    if(chart)chart.destroy();
+    chart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Loan Balance',data:bal,fill:true,backgroundColor:blueGrad,borderColor:'#00478a',tension:.25,borderWidth:2,pointRadius:0},{label:'Total Payment',data:remain,fill:true,backgroundColor:greenGrad,borderColor:'#54b948',tension:0,borderWidth:2,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,labels:{usePointStyle:true,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{title:(it)=>`Years: ${it[0].label}`,label:(c)=>`${c.dataset.label}: ${fmtAUD(c.parsed.y,2)}`}}},scales:{x:{title:{display:true,text:'Years',color:'#405064',font:{weight:'700'}},grid:{color:'rgba(0,0,0,.06)'}},y:{title:{display:true,text:'Amount Owing',color:'#405064',font:{weight:'700'}},ticks:{callback:(v)=>fmtAUD(v,0)},grid:{color:'rgba(0,0,0,.06)'}}}}});
+  }
+  function formatYearsMonths(months){const y=Math.floor(months/12);const m=months%12;return m===0?`${y} years`:`${y} years ${m} months`}
+  function recalc(){
+    const P=+amountEl.value||0;const years=yearsEl();const rate=(+rateEl.value||0)/100;const offset=+offsetEl.value||0;
+    const freqs=[{label:'Monthly',ppY:12},{label:'Fortnightly',ppY:26},{label:'Weekly',ppY:52}];
+    const freq=parseInt(freqEl.value,10);const M=pmt(P,rate,freq,years);const n=freq*years;const totalPaidBase=M*n;const baseInterest=totalPaidBase-P;
+    const sim=simulateWithOffset(P,rate,freq,M,offset);const months=sim.months||n;const intWithOffset=sim.interest||baseInterest;const interestSaved=baseInterest-intWithOffset;const timeSavedMonths=Math.max(0,n-months);
+    outPer.textContent=perLabel();outPay.textContent=fmtAUD(M,2);outIS.textContent=fmtAUD(interestSaved,2);outTS.textContent=formatYearsMonths(timeSavedMonths);outRT.textContent=formatYearsMonths(months);outTPB.textContent=fmtAUD(totalPaidBase,2);buildChart(sim.points,M,freq);
+    cmpBody.innerHTML='';freqs.forEach(f=>{const pay=pmt(P,rate,f.ppY,years);const total=pay*f.ppY*years;const interest=total-P;const tr=document.createElement('tr');tr.innerHTML=`<td>${f.label}</td><td>${fmtAUD(pay,2)}</td><td>${fmtAUD(total,2)}</td><td>${fmtAUD(interest,2)}</td>`;cmpBody.appendChild(tr);});
+  }
+  function exportPDF(){
+    const root=document.getElementById('exportRoot');
+    html2canvas(root,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+      const { jsPDF }=window.jspdf;
+      const pdf=new jsPDF('p','mm','a4');
+      const pageWidth=pdf.internal.pageSize.getWidth();
+      const pageHeight=pdf.internal.pageSize.getHeight();
+      const imgWidth=pageWidth;
+      const imgHeight=canvas.height*imgWidth/canvas.width;
+      let heightLeft=imgHeight,position=0;
+      pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,position,imgWidth,imgHeight,'','FAST');
+      heightLeft-=pageHeight;
+      while(heightLeft>0){pdf.addPage();position=-(imgHeight-heightLeft);pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,position,imgWidth,imgHeight,'','FAST');heightLeft-=pageHeight}
+      pdf.save('IFS-offset-calculator.pdf');
+    });
+  }
+  document.getElementById('calcBtn').addEventListener('click',recalc);
+  document.getElementById('pdfBtn').addEventListener('click',exportPDF);
+  ['#amount','#term','#rate','#freq','#offset'].forEach(s=>{const e=document.querySelector(s);e.addEventListener('input',recalc);e.addEventListener('change',recalc);e.addEventListener('keyup',recalc)});
+  recalc();
+</script>
+</body>
+</html>
