@@ -41,9 +41,7 @@
   .footer-actions{padding:0 22px 22px;display:flex;gap:14px;margin-top:auto;flex-wrap:wrap}
   .btn{flex:1;background:#0b3a70;color:#fff;border:none;border-radius:999px;padding:14px 18px;font-weight:800;cursor:pointer;min-width:190px}
   .btn.secondary{background:#0b3a70;color:#ffff}
-
   .btn:hover{background:#0f4e95}
-
   @media(max-width:560px){.btn{flex:1 1 100%}}
   .result{border:none;border-radius:var(--radius);display:flex;flex-direction:column}
   .result-head{text-align:center;padding:24px 22px;border-bottom:1px solid var(--border)}
@@ -75,6 +73,21 @@
   .compare td{padding:12px;border-top:1px solid var(--border);font-weight:600;color:#0b1324}
   .compare tr:nth-child(even){background:#f8faff}
   .compare tbody tr:hover{background:#eef4fb}
+
+  /* Elementor hardening */
+  #exportRoot, #exportRoot *{font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif !important; line-height:1.45 !important}
+  #exportRoot .panel{background:var(--card) !important; border:1px solid var(--border) !important; border-radius:var(--radius) !important; box-shadow:var(--shadow) !important}
+  #exportRoot .panel-head{color:var(--blue) !important; border-bottom:1px solid var(--border) !important; letter-spacing:.02em !important}
+  #exportRoot .control{background:#fff !important; border:1px solid var(--border) !important; border-radius:12px !important; box-shadow:none !important; padding:12px 14px !important; color:inherit !important}
+  #exportRoot .control:focus{border-color:var(--blue) !important; box-shadow:0 0 0 4px var(--ring) !important; outline:0 !important}
+  #exportRoot select.control{appearance:none !important; -webkit-appearance:none !important}
+  #exportRoot .btn{background:#0b3a70 !important; color:#fff !important; border:none !important; border-radius:999px !important; padding:14px 18px !important; font-weight:800 !important; min-width:190px !important; text-decoration:none !important}
+  #exportRoot .btn.secondary{background:#0b3a70 !important; color:#ffff !important}
+  #exportRoot .btn:hover{background:#0f4e95 !important}
+  #exportRoot .cta{background:#0b3a70 !important; color:#fff !important; border-radius:999px !important; text-decoration:none !important}
+  #exportRoot .result .amount{color:#0a3a71 !important}
+  #exportRoot .compare th{background:#0b3a70 !important; color:#fff !important; text-transform:uppercase !important; letter-spacing:.1em !important}
+  #exportRoot .compare td{color:#0b1324 !important}
 </style>
 </head>
 <body>
