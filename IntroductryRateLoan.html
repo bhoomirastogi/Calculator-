@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Introductory Rate Loan Calculator • IFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --blue:#0b3a70;
+    --blue-600:#0f4e95;
+    --green:#2eae4d;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --bg:#f5f7fb;
+    --card:#ffffff;
+    --border:#e6e9f0;
+    --ring:#c9d7ff;
+    --radius:18px;
+    --shadow:0 10px 28px rgba(2,26,70,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1200px;margin:0 auto;padding:36px 18px}
+  .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;letter-spacing:.02em;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
+  .panel-body{padding:22px;flex:1}
+  .fields{display:grid;gap:16px}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.row-2{grid-template-columns:1fr}}
+  .field label{font-weight:700;font-size:14px;display:block;margin-bottom:6px;color:#2a3952}
+  .control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:15px;background:#fff}
+  .control:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--ring);outline:0}
+  .footer-actions{padding:0 22px 22px;display:flex;gap:14px;margin-top:auto;flex-wrap:wrap}
+  .btn{flex:1;background:#0b3a70;color:#fff;border:none;border-radius:999px;padding:14px 18px;font-weight:800;cursor:pointer;min-width:190px}
+  .btn.secondary{background:#0b3a70;color:#ffff}
+
+  .btn:hover{background:#0f4e95}
+
+  @media(max-width:560px){.btn{flex:1 1 100%}}
+  .result{border:none;border-radius:var(--radius);display:flex;flex-direction:column}
+  .result-head{text-align:center;padding:24px 22px;border-bottom:1px solid var(--border)}
+  .lead{font-weight:800;color:#5b6677;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+  .amount{font-size:clamp(32px,5.8vw,46px);font-weight:900;color:#0a3a71;margin:8px 0 6px;line-height:1.05}
+  .per{color:#7a8391;font-size:14px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:18px}
+  @media(max-width:520px){.stats{grid-template-columns:1fr}}
+  .stat{background:#f8faff;border:1px solid #e2e8f6;border-radius:16px;padding:16px;min-height:104px;display:flex;flex-direction:column;justify-content:center}
+  .stat .k{font-size:11px;color:#7b879a;text-transform:uppercase;letter-spacing:.14em}
+  .stat .v{margin-top:8px;font-weight:900;font-size:20px;color:#0b1324}
+  .brand{display:flex;justify-content:center;align-items:center;margin:8px 0 18px}
+  .brand img{height:60px;width:auto}
+  .cta{display:block;margin:0 18px 20px;background:#0b3a70;color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
+  .cta:hover{background:#0f4e95}
+  .chart-card{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .chart-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
+  .chart-body{padding:16px 22px 22px}
+  .chart-wrap{position:relative;width:100%;height:360px}
+  @media (max-width:1024px){ .chart-wrap{height:320px} }
+  @media (max-width:768px){ .chart-wrap{height:280px} }
+  @media (max-width:520px){ .chart-wrap{height:240px} }
+  #balanceChart{display:block;width:100%!important;height:100%!important}
+  .cmp-section{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .cmp-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue);font-size:clamp(16px,2.2vw,18px)}
+  .cmp-body{padding:0 22px 22px;overflow:auto}
+  table.compare{width:100%;border-collapse:collapse;min-width:760px}
+  .compare th{background:#0b3a70;color:#fff;text-align:left;padding:12px;font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+  .compare td{padding:12px;border-top:1px solid var(--border);font-weight:600;color:#0b1324}
+  .compare tr:nth-child(even){background:#f8faff}
+  .compare tbody tr:hover{background:#eef4fb}
+</style>
+</head>
+<body>
+<section id="exportRoot">
+  <div class="wrap">
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head">Enter your details</div>
+        <div class="panel-body">
+          <div class="fields">
+            <div class="field">
+              <label>Loan amount</label>
+              <input class="control" id="amount" type="number" value="250000" step="1000">
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label>Loan term (years)</label>
+                <input class="control" id="termYears" type="number" value="30" min="1">
+              </div>
+              <div class="field">
+                <label>Repayment frequency</label>
+                <select class="control" id="freq">
+                  <option value="12">Monthly</option>
+                  <option value="26">Fortnightly</option>
+                  <option value="52">Weekly</option>
+                </select>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label>Introductory interest rate (% p.a.)</label>
+                <input class="control" id="introRate" type="number" value="4" step="0.01" min="0">
+              </div>
+              <div class="field">
+                <label>Introductory period (years)</label>
+                <input class="control" id="introYears" type="number" value="5" min="0" step="0.25">
+              </div>
+            </div>
+            <div class="field">
+              <label>Revert (standard) rate after intro (% p.a.)</label>
+              <input class="control" id="revertRate" type="number" value="6" step="0.01" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn" id="calcBtn">Calculate</button>
+          <button class="btn secondary" id="pdfBtn">Download PDF</button>
+        </div>
+      </section>
+
+      <aside class="result panel">
+        <div class="result-head">
+          <div class="lead">Your estimated repayments</div>
+          <div class="amount" id="repaymentIntro">$0.00</div>
+          <div class="per" id="perIntro">/month during intro period</div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="k">Repayment after revert</div>
+            <div class="v" id="repaymentRevert">$0.00</div>
+          </div>
+          <div class="stat">
+            <div class="k">Total repayments</div>
+            <div class="v" id="totalPaid">$0.00</div>
+          </div>
+          <div class="stat">
+            <div class="k">Total interest</div>
+            <div class="v" id="totalInterest">$0.00</div>
+          </div>
+          <div class="stat">
+            <div class="k">Only at variable rate</div>
+            <div class="v" id="varOnlyValue">$0.00</div>
+          </div>
+        </div>
+        <div class="brand">
+          <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo">
+        </div>
+        <a href="https://calendly.com/henryifs/ifs-request-a-callback" class="cta">Book an appointment</a>
+      </aside>
+    </div>
+
+    <section class="chart-card">
+      <div class="chart-head">Loan Balance Chart</div>
+      <div class="chart-body">
+        <div class="chart-wrap"><canvas id="balanceChart"></canvas></div>
+      </div>
+    </section>
+
+    <section class="cmp-section">
+      <div class="cmp-head">Compare by frequency</div>
+      <div class="cmp-body">
+        <table class="compare" id="compareTable">
+          <thead>
+            <tr>
+              <th>Frequency</th>
+              <th>Intro Repayment</th>
+              <th>Post-Revert Repayment</th>
+              <th>Total Repayments</th>
+              <th>Total Interest</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</section>
+
+<script>
+  const fmt=(n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round(n*100)/100);
+  function pmt(P, annualRate, ppy, years){
+    const n=Math.max(1,Math.round(years*ppy));
+    const r=annualRate/ppy;
+    if(r===0) return P/n;
+    return P*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  }
+  function balanceAfter(P, pay, annualRate, ppy, k){
+    const r=annualRate/ppy;
+    if(r===0) return P - pay*k;
+    const x=Math.pow(1+r,k);
+    return P*x - pay*((x-1)/r);
+  }
+  function perLabel(f){ return f===12?'/month':(f===26?'/fortnight':'/week'); }
+
+  const amountEl=document.getElementById('amount');
+  const termYearsEl=document.getElementById('termYears');
+  const freqEl=document.getElementById('freq');
+  const introRateEl=document.getElementById('introRate');
+  const introYearsEl=document.getElementById('introYears');
+  const revertRateEl=document.getElementById('revertRate');
+
+  const outIntro=document.getElementById('repaymentIntro');
+  const outPerIntro=document.getElementById('perIntro');
+  const outRevert=document.getElementById('repaymentRevert');
+  const outTP=document.getElementById('totalPaid');
+  const outTI=document.getElementById('totalInterest');
+  const outVarOnly=document.getElementById('varOnlyValue');
+
+  const cmpBody=document.querySelector('#compareTable tbody');
+  let chart;
+
+  function calcForFreq(ppy){
+    const P=+amountEl.value||0;
+    const years=+termYearsEl.value||1;
+    const introRate=(+introRateEl.value||0)/100;
+    const revertRate=(+revertRateEl.value||0)/100;
+    const introYears=Math.max(0,+introYearsEl.value||0);
+    const totalPeriods=Math.max(1,Math.round(years*ppy));
+    const n1=Math.min(Math.round(introYears*ppy), totalPeriods);
+    const n2=Math.max(0,totalPeriods-n1);
+    let introPayment=0,revertPayment=0,totalBasePaid=0;
+    if(n1>0){
+      introPayment=pmt(P,introRate,ppy,years);
+      const balAfterIntro=balanceAfter(P,introPayment,introRate,ppy,n1);
+      if(n2>0){
+        revertPayment=pmt(balAfterIntro,revertRate,ppy,n2/ppy);
+        totalBasePaid=introPayment*n1 + revertPayment*n2;
+      }else{
+        totalBasePaid=introPayment*n1;
+      }
+    }else{
+      revertPayment=pmt(P,revertRate,ppy,years);
+      totalBasePaid=revertPayment*totalPeriods;
+    }
+    const totalInterest=totalBasePaid-P;
+    const varOnlyPay=pmt(P,revertRate,ppy,years);
+    const varOnlyInterest=varOnlyPay*totalPeriods - P;
+    return {P,years,ppy,n1,n2,introPayment,revertPayment,totalBasePaid,totalInterest,varOnlyInterest,revertRate};
+  }
+
+  function recalc(){
+    const ppy=parseInt(freqEl.value,10);
+    const r=calcForFreq(ppy);
+    outIntro.textContent=r.introPayment?fmt(r.introPayment):fmt(0);
+    outPerIntro.textContent=r.introPayment?`${perLabel(ppy)} during intro period`:`${perLabel(ppy)} (no intro period)`;
+    outRevert.textContent=r.revertPayment?fmt(r.revertPayment):fmt(0);
+    outTP.textContent=fmt(r.totalBasePaid);
+    outTI.textContent=fmt(r.totalInterest);
+    outVarOnly.textContent=fmt(r.varOnlyInterest);
+    fillTable();
+    buildChart();
+  }
+
+  function fillTable(){
+    const rows=[{label:'Monthly',f:12},{label:'Fortnightly',f:26},{label:'Weekly',f:52}];
+    cmpBody.innerHTML='';
+    rows.forEach(row=>{
+      const v=calcForFreq(row.f);
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${row.label}</td>
+        <td>${v.introPayment?fmt(v.introPayment):'—'}</td>
+        <td>${v.revertPayment?fmt(v.revertPayment):'—'}</td>
+        <td>${fmt(v.totalBasePaid)}</td>
+        <td>${fmt(v.totalInterest)}</td>`;
+      cmpBody.appendChild(tr);
+    });
+  }
+
+  function buildChart(){
+    const ppy=parseInt(freqEl.value,10);
+    const {P,years,n1,n2,introPayment,revertPayment,revertRate}=calcForFreq(ppy);
+    const totalPeriods=Math.max(1,Math.round(years*ppy));
+    const balances=[];
+    let B=P;
+    for(let k=0;k<=totalPeriods;k++){
+      if(k===0){balances.push(B);continue;}
+      const r=(k<=n1 ? (+introRateEl.value||0)/100 : (+revertRateEl.value||0)/100)/ppy;
+      const pay=(k<=n1)?introPayment:revertPayment;
+      B=(r===0)?(B - pay):(B*(1+r) - pay);
+      balances.push(Math.max(B,0));
+    }
+    const varOnlyPay=pmt(P,revertRate,ppy,years);
+    const varRemain=[];
+    for(let k=0;k<=totalPeriods;k++){
+      varRemain.push(Math.max(0,(totalPeriods-k)*varOnlyPay));
+    }
+    const labels=[], yBal=[], yRem=[];
+    for(let y=0;y<=years;y++){
+      const idx=Math.min(Math.round(y*ppy), totalPeriods);
+      labels.push(String(y));
+      yBal.push(balances[idx]);
+      yRem.push(varRemain[idx]);
+    }
+    const ctx=document.getElementById('balanceChart').getContext('2d');
+    const blueFill=ctx.createLinearGradient(0,0,0,260);
+    blueFill.addColorStop(0,'rgba(15,78,149,.25)');
+    blueFill.addColorStop(1,'rgba(15,78,149,.05)');
+    const greenFill=ctx.createLinearGradient(0,0,0,260);
+    greenFill.addColorStop(0,'rgba(46,174,77,.35)');
+    greenFill.addColorStop(1,'rgba(46,174,77,.06)');
+    if(chart) chart.destroy();
+    chart=new Chart(ctx,{
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          {label:'Loan Balance',data:yBal,borderColor:'#0f4e95',backgroundColor:blueFill,fill:true,tension:.25,borderWidth:2,pointRadius:2,pointHoverRadius:4},
+          {label:'Total Payment Remaining',data:yRem,borderColor:'#2eae4d',backgroundColor:greenFill,fill:true,tension:0,borderWidth:2,pointRadius:2,pointHoverRadius:4}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'nearest',intersect:false},
+        plugins:{legend:{display:true,labels:{usePointStyle:true,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{title:(i)=>`Year: ${i[0].label}`,label:(c)=>`${c.dataset.label}: ${fmt(c.parsed.y)}`}}},
+        scales:{x:{title:{display:true,text:'Years',color:'#2a3952',font:{weight:'700'}},grid:{color:'rgba(0,0,0,.06)'}},y:{title:{display:true,text:'Amount Owing',color:'#2a3952',font:{weight:'700'}},ticks:{callback:(v)=>fmt(v,0)},grid:{color:'rgba(0,0,0,.06)'}}}
+      }
+    });
+  }
+
+  function exportWholeUIToPDF(){
+    const root=document.getElementById('exportRoot');
+    html2canvas(root,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+      const imgData=canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf=new jsPDF('p','mm','a4');
+      const pageWidth=pdf.internal.pageSize.getWidth();
+      const pageHeight=pdf.internal.pageSize.getHeight();
+      const imgWidth=pageWidth;
+      const imgHeight=canvas.height * imgWidth / canvas.width;
+      let heightLeft=imgHeight;
+      let position=0;
+      pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight,'','FAST');
+      heightLeft -= pageHeight;
+      while(heightLeft>0){
+        pdf.addPage();
+        position = - (imgHeight - heightLeft);
+        pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight,'','FAST');
+        heightLeft -= pageHeight;
+      }
+      pdf.save('IFS-introductory-rate-calculator.pdf');
+    });
+  }
+
+  document.getElementById('calcBtn').addEventListener('click',recalc);
+  ['#amount','#termYears','#freq','#introRate','#introYears','#revertRate'].forEach(sel=>{
+    const el=document.querySelector(sel);
+    el.addEventListener('input',recalc,{passive:true});
+    el.addEventListener('change',recalc,{passive:true});
+    el.addEventListener('keyup',recalc,{passive:true});
+  });
+  document.getElementById('pdfBtn').addEventListener('click',exportWholeUIToPDF);
+  recalc();
+</script>
+</body>
+</html>
