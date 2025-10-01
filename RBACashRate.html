@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>RBA Cash Rate Impact • IFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#003366;
+    --blue-600:#00478a;
+    --ink:#0f1f33;
+    --bg:#f6f8fb;
+    --card:#fff;
+    --border:#e6eaf0;
+    --ring:#c9d7ff;
+    --accent:#e9f3ff;
+    --ok:#16a34a;
+    --err:#dc2626;
+  }
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+  *{box-sizing:border-box}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 16px}
+  .panel{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    box-shadow:0 18px 40px rgba(0,0,0,.06);
+    overflow:hidden;
+  }
+  .panel-head{
+    padding:20px 22px;border-bottom:1px solid var(--border);
+    font-weight:800;color:var(--blue);font-size:24px
+  }
+  .panel-body{padding:22px}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:720px){.row-2{grid-template-columns:1fr}}
+  label{font-weight:800;font-size:16px;margin:0 0 6px;display:block}
+  .control{width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:16px}
+  .control:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--ring);outline:0}
+
+  .footer{padding:0 22px 22px;display:flex;flex-direction:column;gap:16px}
+  .logo-gap{display:flex;justify-content:center;margin:8px 0}
+  .logo-gap img{max-width:200px;width:100%;height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.08))}
+
+  .btn-row{display:flex;gap:12px;width:100%}
+  @media(max-width:720px){.btn-row{flex-direction:column}}
+  .btn{
+    flex:1; min-width:0;
+    background:var(--blue); color:#fff; border:none; border-radius:999px;
+    padding:14px 18px; font-weight:700; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+    line-height:1.2; text-align:center;
+    transition:.2s ease; cursor:pointer;
+ text-decoration: none;
+    white-space:normal; word-break:keep-all;
+  }
+  .btn:hover{background:var(--blue-600)}
+  .btn:focus{outline:0; box-shadow:0 0 0 4px rgba(11,118,218,.18)}
+
+  .notice{
+    position:relative; background:var(--accent);
+    border:1px solid #d8e8ff; border-radius:12px;
+    padding:14px 18px 14px 22px; font-size:16px; line-height:1.5;
+    width:100%; box-sizing:border-box; overflow:hidden;
+  }
+  .notice::before{
+    content:""; position:absolute; inset:0 auto 0 0; width:6px;
+    background:linear-gradient(180deg,#79aaf6 0%, #0b76da 100%);
+    border-top-left-radius:12px; border-bottom-left-radius:12px;
+  }
+  .notice b{font-weight:800}
+  .cut{color:var(--ok);font-weight:800}
+  .hike{color:var(--err);font-weight:800}
+  .amt{color:#0b76da;font-weight:800;text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <div class="panel-head">Enter your details</div>
+
+      <div class="panel-body">
+        <div class="row-2">
+          <div>
+            <label>Loan Amount ($)</label>
+            <input id="loanAmt" class="control" type="number" value="500000" step="1000">
+          </div>
+          <div>
+            <label>Current Interest Rate (% p.a.)</label>
+            <input id="rateNow" class="control" type="number" value="6.00" step="0.01">
+          </div>
+          <div>
+            <label>Loan Term (Years)</label>
+            <input id="termYears" class="control" type="number" value="30" min="1">
+          </div>
+          <div>
+            <label>RBA Cash Rate Change (%)</label>
+            <input id="rbaDelta" class="control" type="number" value="-0.25" step="0.05">
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="logo-gap">
+          <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="calcBtn">Calculate</button>
+          <a class="btn" id="bookBtn" href="https://calendly.com/henryifs/ifs-request-a-callback" target="_blank" rel="noopener">Book an appointment</a>
+        </div>
+
+        <div class="notice" id="sentenceBox">
+          A rate <b>decrease</b> of <span class="cut">-0.25 %</span> will <b>decrease</b> your monthly repayments by
+          <span class="amt">$79.89</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const fmtAUD = (n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round(n*100)/100);
+  function PMT(P,i_m,n){if(i_m===0)return P/n;const a=Math.pow(1+i_m,n);return P*(i_m*a)/(a-1)}
+  function compute(){
+    const P=+$('loanAmt').value||0;
+    const rNow=+$('rateNow').value||0;
+    const years=+$('termYears').value||30;
+    const delta=+$('rbaDelta').value||0;
+    const n=years*12;
+    const i0=(rNow/100)/12;
+    const i1=((rNow+delta)/100)/12;
+    const m0=PMT(P,i0,n);
+    const m1=PMT(P,i1,n);
+    const diff=m1-m0;
+    const isCut=delta<0;
+    const verb=isCut?'decrease':'increase';
+    const pct=`${delta.toFixed(2)} %`;
+    const amt=fmtAUD(Math.abs(diff),2);
+    $('sentenceBox').innerHTML=`A rate <b>${isCut?'decrease':'increase'}</b> of <span class="${isCut?'cut':'hike'}">${pct}</span> will <b>${verb}</b> your monthly repayments by <span class="amt">${amt}</span>`;
+  }
+  ['loanAmt','rateNow','termYears','rbaDelta'].forEach(id=>{
+    $(id).addEventListener('input',compute);
+    $(id).addEventListener('change',compute);
+  });
+  compute();
+</script>
+</body>
+</html>
