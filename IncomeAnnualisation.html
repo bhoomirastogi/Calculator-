@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Income Annualisation Calculator • IFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#0d3a66;
+    --green:#7bc66a;
+    --ink:#0f172a;
+    --bg:#f6f8fb;
+    --card:#ffffff;
+    --border:#e5e7eb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1100px;margin:0 auto;padding:34px 18px}
+  .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:26px}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 14px 36px rgba(0,0,0,.08);overflow:hidden}
+  .panel-head{padding:16px 20px;border-bottom:1px solid var(--border);font-weight:800;color:#0b3d70;font-size:18px}
+  .panel-body{padding:18px 20px}
+  .fields{display:grid;gap:14px}
+  #calcBtn{font-size:16px}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:560px){.row-2{grid-template-columns:1fr}}
+  .field label{display:block;margin-bottom:6px;font-weight:700;font-size:14px}
+  .control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:15px}
+  .control:focus{border-color:#0b3d70;box-shadow:0 0 0 4px rgba(11,61,112,.15);outline:0}
+  .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px;width:100%}
+  .btn{background:#0b3d70;border:none;border-radius:999px;color:#fff;font-weight:800;padding:13px 16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;width:100%}
+  .btn:hover{background:#0f4a88}
+  .result{display:flex;flex-direction:column;gap:16px}
+  .big-figure{padding:18px 20px;border:1px solid var(--border);border-radius:14px;background:#f7f9ff}
+  .big-figure .k{font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#667085;font-size:12px}
+  .big-figure .v{margin-top:6px;color:#2fb65d;font-weight:900;font-size:clamp(28px,6vw,40px)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:520px){.stats{grid-template-columns:1fr}}
+  .stat{padding:14px;border:1px solid var(--border);border-radius:14px;background:#fff}
+  .stat .k{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#667085;font-weight:800}
+  .stat .v{margin-top:6px;font-weight:900;color:#000;font-size:20px}
+  .axis-card{border:1px solid var(--border);border-radius:14px;padding:10px 14px;background:#fff}
+  .axis-legend{display:flex;gap:22px;justify-content:center;margin-bottom:6px;flex-wrap:wrap}
+  .legend-btn{display:flex;align-items:center;gap:8px;font-weight:800;color:#1f2937;cursor:pointer;user-select:none;padding:4px 8px;border-radius:10px;transition:transform .12s}
+  .legend-btn:active{transform:scale(.98)}
+  .legend-btn.active{outline:2px solid #dbeafe;background:#f1f5ff}
+  .sw{width:16px;height:10px;border-radius:2px}
+  .sw.paid{background:var(--blue)}
+  .sw.unpaid{background:var(--green)}
+  .axis-wrap{position:relative;padding-left:10px}
+  .axis-left{position:absolute;left:0;top:0;bottom:40px;width:2px;background:#0b1a2a;border-radius:1px}
+  .axis-track{height:18px;background:#e6eef7;border-radius:999px;overflow:hidden;position:relative;margin-left:2px}
+  .axis-inner{height:100%;position:relative;transition:width .25s ease}
+  .seg{height:100%;float:left;transition:width .25s ease,opacity .2s ease}
+  .seg.paid{background:var(--blue)}
+  .seg.unpaid{background:var(--green)}
+  .seg.fade{opacity:.2}
+  .axis-ticks{position:relative;height:16px;margin-left:2px}
+  .tick{position:absolute;top:0;height:8px;width:1px;background:#0b1a2a;opacity:.9}
+  .axis-labels-row{display:flex;justify-content:space-between;gap:0;font-size:12px;color:#0b3d70;margin-top:2px}
+  .axis-labels-row span{min-width:22px;text-align:center}
+  .axis-footer{display:flex;justify-content:center;font-size:12px;color:#0b3d70;margin-top:4px;font-weight:900}
+  .ifs-logo{display:flex;justify-content:center;align-items:center;margin:6px 0 4px}
+  .ifs-logo img{max-width:220px;height:auto}
+
+  /* Elementor proofing */
+  #app{all:unset;display:block}
+  #app *{font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif!important;line-height:normal!important;letter-spacing:normal!important;text-transform:none!important;box-sizing:border-box!important}
+  #app .panel{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:16px!important;box-shadow:0 14px 36px rgba(0,0,0,.08)!important}
+  #app .panel-head{padding:16px 20px!important;border-bottom:1px solid var(--border)!important;color:#0b3d70!important;font-weight:800!important}
+  #app .panel-body{padding:18px 20px!important}
+  #app .control{border:1px solid var(--border)!important;border-radius:12px!important;background:#fff!important;padding:12px 14px!important;font-size:15px!important}
+  #app .btn-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:14px!important;margin-top:10px!important}
+  #app .btn{background:#0b3d70!important;border:none!important;border-radius:999px!important;color:#fff!important;font-weight:800!important;padding:13px 16px!important;text-decoration:none!important}
+  #app .btn:hover{background:#0f4a88!important}
+  #app .big-figure{background:#f7f9ff!important;border:1px solid var(--border)!important;border-radius:14px!important}
+  #app .axis-card{border:1px solid var(--border)!important;border-radius:14px!important;background:#fff!important}
+  #app .axis-track{background:#e6eef7!important;border-radius:999px!important}
+  #app .seg.paid{background:var(--blue)!important}
+  #app .seg.unpaid{background:var(--green)!important}
+  #app .wrap{max-width:1100px!important;padding:34px 18px!important;margin:0 auto!important}
+</style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head">Enter your details</div>
+        <div class="panel-body">
+          <div class="fields">
+            <div class="row-2">
+              <div class="field">
+                <label for="fyStart">Start of financial year date</label>
+                <input id="fyStart" class="control" type="date" value="2025-07-01">
+              </div>
+              <div class="field">
+                <label for="latest">Latest pay period end date</label>
+                <input id="latest" class="control" type="date" value="2025-10-04">
+              </div>
+            </div>
+            <div class="field">
+              <label for="ytd">Year to date income</label>
+              <input id="ytd" class="control" type="number" step="0.01" value="21041">
+            </div>
+            <div class="ifs-logo">
+              <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="Intelligent Financial Solutions">
+            </div>
+            <div class="btn-row">
+              <button id="calcBtn" class="btn">Calculate</button>
+              <a href="https://calendly.com/henryifs/ifs-request-a-callback" target="_blank" rel="noopener" class="btn">Book an appointment</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <aside class="panel">
+        <div class="panel-head">View your results</div>
+        <div class="panel-body">
+          <div class="result">
+            <div class="big-figure">
+              <div class="k">Annualised income</div>
+              <div id="annualised" class="v">$0</div>
+            </div>
+            <div class="stats">
+              <div class="stat">
+                <div class="k">Number of paid days</div>
+                <div id="paidDays" class="v">0</div>
+              </div>
+              <div class="stat">
+                <div class="k">Number of unpaid days</div>
+                <div id="unpaidDays" class="v">0</div>
+              </div>
+            </div>
+            <div class="axis-card">
+              <div class="axis-legend">
+                <div id="legendPaid" class="legend-btn" role="button" tabindex="0" aria-pressed="false"><span class="sw paid"></span>Paid days</div>
+                <div id="legendUnpaid" class="legend-btn" role="button" tabindex="0" aria-pressed="false"><span class="sw unpaid"></span>Unpaid days</div>
+              </div>
+              <div class="axis-wrap">
+                <div class="axis-left"></div>
+                <div class="axis-track">
+                  <div id="axisInner" class="axis-inner">
+                    <div id="segPaid" class="seg paid" style="width:0%"></div>
+                    <div id="segUnpaid" class="seg unpaid" style="width:0%"></div>
+                  </div>
+                </div>
+                <div id="axisTicks" class="axis-ticks"></div>
+                <div id="axisLabels" class="axis-labels-row"></div>
+                <div class="axis-footer"><span class="center">days</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+<script>
+  const $ = (id)=>document.getElementById(id);
+  const fmtAUD = (n)=> new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n);
+  function parseISO(d){ const t = new Date(d); if(isNaN(t)) return null; return new Date(t.getFullYear(), t.getMonth(), t.getDate()); }
+  function fyTotalDays(fyStart){ const end = new Date(fyStart.getFullYear()+1, fyStart.getMonth(), fyStart.getDate()-1); const total = Math.round((end - fyStart)/86400000)+1; return { total, fyEnd: end }; }
+  function inclusiveDays(from, to){ return Math.max(0, Math.round((to - from)/86400000) + 1); }
+  const AXIS_MAX = 400;
+  function drawTicksAndLabels(){
+    const ticks = $('axisTicks'); ticks.innerHTML = '';
+    const labels = $('axisLabels'); labels.innerHTML = '';
+    const step = 50;
+    for(let v=0; v<=AXIS_MAX; v+=step){
+      const t = document.createElement('div');
+      t.className = 'tick';
+      t.style.left = `${(v/AXIS_MAX)*100}%`;
+      ticks.appendChild(t);
+      const lab = document.createElement('span');
+      lab.textContent = v.toString();
+      labels.appendChild(lab);
+    }
+  }
+  let focus = 'none';
+  let lastPercPaid = 0;
+  function applyFocus(){
+    const segPaid   = $('segPaid');
+    const segUnpaid = $('segUnpaid');
+    const axisInner = $('axisInner');
+    const paidBtn   = $('legendPaid');
+    const unpaidBtn = $('legendUnpaid');
+    paidBtn.classList.toggle('active',  focus==='paid');
+    unpaidBtn.classList.toggle('active',focus==='unpaid');
+    axisInner.style.width = axisInner.dataset.trackPct || '100%';
+    if(focus==='paid'){
+      segPaid.style.width   = lastPercPaid + '%';
+      segUnpaid.style.width = '0%';
+      segPaid.classList.remove('fade');
+      segUnpaid.classList.add('fade');
+    } else if(focus==='unpaid'){
+      const unpaidPct = 100 - lastPercPaid;
+      segPaid.style.width   = '0%';
+      segUnpaid.style.width = unpaidPct + '%';
+      segPaid.classList.add('fade');
+      segUnpaid.classList.remove('fade');
+    } else {
+      segPaid.style.width   = lastPercPaid + '%';
+      segUnpaid.style.width = (100 - lastPercPaid) + '%';
+      segPaid.classList.remove('fade');
+      segUnpaid.classList.remove('fade');
+    }
+  }
+  function recalc(){
+    const fyStart = parseISO($('fyStart').value);
+    const latest  = parseISO($('latest').value);
+    const ytd     = parseFloat($('ytd').value || '0');
+    if(!fyStart || !latest || latest < fyStart){
+      $('annualised').textContent = '$0';
+      $('paidDays').textContent = '0';
+      $('unpaidDays').textContent = '0';
+      $('segPaid').style.width = '0%';
+      $('segUnpaid').style.width = '0%';
+      $('axisInner').style.width = '0%';
+      return;
+    }
+    const { total } = fyTotalDays(fyStart);
+    const paid = Math.min(inclusiveDays(fyStart, latest), total);
+    const unpaid = Math.max(total - paid, 0);
+    const annualised = ytd * (total / Math.max(paid,1));
+    $('annualised').textContent = fmtAUD(annualised);
+    $('paidDays').textContent   = String(paid);
+    $('unpaidDays').textContent = String(unpaid);
+    const trackPct = Math.min(total / AXIS_MAX, 1) * 100;
+    const axisInner = $('axisInner');
+    axisInner.style.width = trackPct + '%';
+    axisInner.dataset.trackPct = trackPct + '%';
+    lastPercPaid = (paid / total) * 100;
+    if(focus==='none'){ $('segPaid').style.width = lastPercPaid + '%'; $('segUnpaid').style.width = (100 - lastPercPaid) + '%'; }
+  }
+  $('calcBtn').addEventListener('click', ()=>{ recalc(); applyFocus(); });
+  ['fyStart','latest','ytd'].forEach(id=>{
+    $(id).addEventListener('change', ()=>{ recalc(); applyFocus(); }, {passive:true});
+    $(id).addEventListener('input',  ()=>{ recalc(); applyFocus(); }, {passive:true});
+  });
+  function toggleFocus(which){
+    if(focus===which){ focus='none'; } else { focus=which; }
+    applyFocus();
+  }
+  $('legendPaid').addEventListener('click', ()=>toggleFocus('paid'));
+  $('legendUnpaid').addEventListener('click', ()=>toggleFocus('unpaid'));
+  $('legendPaid').addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleFocus('paid'); }});
+  $('legendUnpaid').addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleFocus('unpaid'); }});
+  drawTicksAndLabels();
+  recalc();
+  applyFocus();
+</script>
+</body>
+</html>
