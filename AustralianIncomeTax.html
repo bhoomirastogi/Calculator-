@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+<div style="all:initial;display:block;">
+  <iframe style="width:100%;border:none;min-height:2200px;overflow:hidden;" loading="lazy"
+    srcdoc='<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -104,8 +106,7 @@
         </div>
 
         <p class="tagline">
-          Explore your loan options with our smart calculators, then connect with Intelligent Financial Solutions to find the right deal.
-          <br/>We work for you, we work with banks
+          Explore your loan options with our smart calculators, then connect with Intelligent Financial Solutions to find the right deal.<br/>We work for you, we work with banks
         </p>
 
         <div class="footer-actions">
@@ -137,18 +138,12 @@
           <div class="pie-canvas-wrap">
             <h3 class="pie-title">2024–2025</h3>
             <canvas id="pieChart1"></canvas>
-            <div class="pie-legend">
-              <span class="tax">Tax: <span id="taxPct1">0%</span></span> •
-              <span class="net">Net Income: <span id="netPct1">0%</span></span>
-            </div>
+            <div class="pie-legend"><span class="tax">Tax: <span id="taxPct1">0%</span></span> • <span class="net">Net Income: <span id="netPct1">0%</span></span></div>
           </div>
           <div class="pie-canvas-wrap">
             <h3 class="pie-title">2025–2026</h3>
             <canvas id="pieChart2"></canvas>
-            <div class="pie-legend">
-              <span class="tax">Tax: <span id="taxPct2">0%</span></span> •
-              <span class="net">Net Income: <span id="netPct2">0%</span></span>
-            </div>
+            <div class="pie-legend"><span class="tax">Tax: <span id="taxPct2">0%</span></span> • <span class="net">Net Income: <span id="netPct2">0%</span></span></div>
           </div>
         </div>
       </div>
@@ -168,7 +163,7 @@
 
 <script>
   const $ = (s)=>document.querySelector(s);
-  const fmtAUD=(n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round((Number.isFinite(n)?n:0)*100)/100);
+  const fmtAUD=(n,d=2)=>new Intl.NumberFormat("en-AU",{style:"currency",currency:"AUD",minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round((Number.isFinite(n)?n:0)*100)/100);
 
   function residentBaseTax(x){
     const t=Math.max(0,x);
@@ -188,18 +183,18 @@
   function medicareLevy(x,apply){
     const t=Math.max(0,x);
     if(!apply) return 0;
-    const L=27222, U=34027;
+    const L=27222,U=34027;
     if(t<=L) return 0;
     if(t<U) return 0.10*(t-L);
     return 0.02*t;
   }
 
-  const grossEl=$('#gross');
-  const outNetTax=$('#netTax');
-  const outBase=$('#baseTax');
-  const cmpBody=$('#compareTable tbody');
+  const grossEl=$("#gross");
+  const outNetTax=$("#netTax");
+  const outBase=$("#baseTax");
+  const cmpBody=$("#compareTable tbody");
 
-  let pie1, pie2, mlApply=true;
+  let pie1,pie2,mlApply=true;
 
   function calc(){
     const gross=Number(grossEl.value)||0;
@@ -212,21 +207,16 @@
 
     outNetTax.textContent=fmtAUD(netTax,2);
     outBase.textContent=fmtAUD(base,2);
-
     fillTable(gross,netTax,base,mlAmt);
     drawPie(gross,netTax,takeHome);
   }
 
   function fillTable(gross,netTax,base,mlAmt){
-    const rows=[{label:'Monthly',div:12},{label:'Fortnightly',div:26},{label:'Weekly',div:52}];
-    cmpBody.innerHTML='';
+    const rows=[{label:"Monthly",div:12},{label:"Fortnightly",div:26},{label:"Weekly",div:52}];
+    cmpBody.innerHTML="";
     rows.forEach(r=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${r.label}</td>
-        <td>${fmtAUD((gross-netTax)/r.div,2)}</td>
-        <td>${fmtAUD(netTax/r.div,2)}</td>
-        <td>${fmtAUD(base/r.div,2)}</td>
-        <td>${fmtAUD(mlAmt/r.div,2)}</td>`;
+      const tr=document.createElement("tr");
+      tr.innerHTML="<td>"+r.label+"</td><td>"+fmtAUD((gross-netTax)/r.div,2)+"</td><td>"+fmtAUD(netTax/r.div,2)+"</td><td>"+fmtAUD(base/r.div,2)+"</td><td>"+fmtAUD(mlAmt/r.div,2)+"</td>";
       cmpBody.appendChild(tr);
     });
   }
@@ -235,70 +225,55 @@
     const total=Math.max(1,gross);
     const cleanTax=Math.max(0,tax);
     const cleanNet=Math.max(0,net);
-
     const taxPct=(cleanTax/total*100).toFixed(2);
     const netPct=(cleanNet/total*100).toFixed(2);
-
-    document.getElementById('taxPct1').textContent = taxPct + '%';
-    document.getElementById('netPct1').textContent = netPct + '%';
-    document.getElementById('taxPct2').textContent = taxPct + '%';
-    document.getElementById('netPct2').textContent = netPct + '%';
-
-    const data={
-      labels:['Tax','Net Income'],
-      datasets:[{
-        data:[cleanTax, cleanNet],
-        backgroundColor:['#0c4a7d','#54b948'],
-        borderColor:'#ffffff',
-        borderWidth:3,
-        cutout:'55%',
-        hoverOffset:6
-      }]
-    };
-    const options={plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${c.label}: ${fmtAUD(c.parsed,2)}`}}},responsive:true,maintainAspectRatio:false};
-
+    document.getElementById("taxPct1").textContent=taxPct+"%";
+    document.getElementById("netPct1").textContent=netPct+"%";
+    document.getElementById("taxPct2").textContent=taxPct+"%";
+    document.getElementById("netPct2").textContent=netPct+"%";
+    const data={labels:["Tax","Net Income"],datasets:[{data:[cleanTax,cleanNet],backgroundColor:["#0c4a7d","#54b948"],borderColor:"#ffffff",borderWidth:3,cutout:"55%",hoverOffset:6}]};
+    const options={plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>c.label+": "+fmtAUD(c.parsed,2)}}},responsive:true,maintainAspectRatio:false};
     if(pie1) pie1.destroy();
-    const ctx1=document.getElementById('pieChart1').getContext('2d');
-    pie1=new Chart(ctx1,{type:'doughnut',data,options});
-
+    const ctx1=document.getElementById("pieChart1").getContext("2d");
+    pie1=new Chart(ctx1,{type:"doughnut",data,options});
     if(pie2) pie2.destroy();
-    const ctx2=document.getElementById('pieChart2').getContext('2d');
-    pie2=new Chart(ctx2,{type:'doughnut',data,options});
+    const ctx2=document.getElementById("pieChart2").getContext("2d");
+    pie2=new Chart(ctx2,{type:"doughnut",data,options});
   }
 
   function exportWholeUIToPDF(){
-    const root=document.getElementById('exportRoot');
-    html2canvas(root,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
-      const imgData=canvas.toDataURL('image/png');
-      const { jsPDF }=window.jspdf;
-      const pdf=new jsPDF('p','mm','a4');
+    const root=document.getElementById("exportRoot");
+    html2canvas(root,{scale:2,useCORS:true,backgroundColor:"#ffffff"}).then(canvas=>{
+      const imgData=canvas.toDataURL("image/png");
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF("p","mm","a4");
       const pageWidth=pdf.internal.pageSize.getWidth();
       const pageHeight=pdf.internal.pageSize.getHeight();
       const imgWidth=pageWidth;
       const imgHeight=canvas.height*imgWidth/canvas.width;
-      let heightLeft=imgHeight, pos=0;
-      pdf.addImage(imgData,'PNG',0,pos,imgWidth,imgHeight,'','FAST');
+      let heightLeft=imgHeight,pos=0;
+      pdf.addImage(imgData,"PNG",0,pos,imgWidth,imgHeight,"","FAST");
       heightLeft-=pageHeight;
       while(heightLeft>0){
         pdf.addPage();
         pos=-(imgHeight-heightLeft);
-        pdf.addImage(imgData,'PNG',0,pos,imgWidth,imgHeight,'','FAST');
+        pdf.addImage(imgData,"PNG",0,pos,imgWidth,imgHeight,"","FAST");
         heightLeft-=pageHeight;
       }
-      pdf.save('IFS-income-tax-calculator.pdf');
+      pdf.save("IFS-income-tax-calculator.pdf");
     });
   }
 
   function bind(){
-    $('#calcBtn').addEventListener('click',calc);
-    $('#pdfBtn').addEventListener('click',exportWholeUIToPDF);
-    grossEl.addEventListener('input',calc,{passive:true});
-    const seg=$('#mlSeg');
-    seg.addEventListener('click',e=>{
-      if(e.target.tagName!=='BUTTON') return;
-      seg.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-      e.target.classList.add('active');
-      mlApply=e.target.dataset.val==='on';
+    document.getElementById("calcBtn").addEventListener("click",calc);
+    document.getElementById("pdfBtn").addEventListener("click",exportWholeUIToPDF);
+    grossEl.addEventListener("input",calc,{passive:true});
+    const seg=document.getElementById("mlSeg");
+    seg.addEventListener("click",e=>{
+      if(e.target.tagName!=="BUTTON") return;
+      seg.querySelectorAll("button").forEach(b=>b.classList.remove("active"));
+      e.target.classList.add("active");
+      mlApply=e.target.dataset.val==="on";
       calc();
     });
     calc();
@@ -306,4 +281,6 @@
   bind();
 </script>
 </body>
-</html>
+</html>''>
+  </iframe>
+</div>
