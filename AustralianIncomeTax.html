@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Australian Income Tax Calculator • IFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  :root{
+    --blue:#003366; --blue-600:#00478a; --ink:#1f2937; --bg:#f6f8fb;
+    --card:#ffffff; --border:#e5e7eb; --ring:#c9d7ff; --radius:16px; --shadow:0 14px 36px rgba(0,0,0,.08);
+    --green:#54b948; --muted:#6b7280;
+  }
+  *{box-sizing:border-box}
+  html,body{min-height:100%}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1200px;margin:0 auto;padding:36px 20px}
+  .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+  .panel-body{padding:22px}
+
+  .fields{display:grid;gap:16px}
+  .field label{font-weight:700;font-size:14px;margin-bottom:6px}
+  .control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:15px;background:#fff}
+  .control:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--ring);outline:0}
+
+  .toggle-wrap{display:flex;align-items:center;gap:14px}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .seg button{padding:10px 16px;border:0;background:#fff;color:#0c2742;font-weight:800;cursor:pointer}
+  .seg button.active{background:#0c4a7d;color:#fff}
+  .seg button:not(.active):hover{background:#f1f5f9}
+
+  .tagline{font-size:14px;font-style:italic;color:var(--muted);margin:8px auto 16px;text-align:center;line-height:1.5;max-width:90%}
+
+  .footer-actions{padding:20px;display:flex;gap:16px;justify-content:center;flex-wrap:nowrap}
+  .btn{flex:1 1 auto;background:var(--blue);color:#fff;border:none;border-radius:999px;padding:14px 16px;font-weight:800;cursor:pointer;min-width:180px;max-width:260px}
+  .btn:hover{background:var(--blue-600)}
+
+  .result{display:flex;flex-direction:column}
+  .result-head{text-align:center;padding:20px;border-bottom:1px solid var(--border)}
+  .lead{font-weight:800;color:#5f6470;font-size:13px;text-transform:uppercase}
+  .amount{font-size:clamp(32px,6vw,48px);font-weight:900;color:var(--blue)}
+  .per{color:#7c7f86;font-size:14px}
+  .stats{padding:20px}
+  .stat{background:#f7f9ff;border:1px solid #dfe3f0;border-radius:14px;padding:20px;text-align:center}
+  .stat .k{font-size:11px;color:#7b8494;text-transform:uppercase}
+  .stat .v{margin-top:6px;font-weight:900;font-size:18px;color:#000}
+
+  .logo-slot{display:flex;justify-content:center;margin:12px 0 18px}
+  .logo-slot img{height:65px;width:auto}
+  .cta{display:block;margin:0 20px 30px;background:var(--blue);color:#fff;padding:16px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
+  .cta:hover{background:var(--blue-600)}
+
+  .pie-card{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);min-height:500px;display:flex;flex-direction:column}
+  .pie-head{padding:16px 20px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+  .pie-body{flex:1;padding:28px 30px 32px}
+  .pie-wrap{display:grid;grid-template-columns:1fr;gap:24px;align-items:center;justify-items:center}
+  @media(min-width:820px){.pie-wrap{grid-template-columns:repeat(2,minmax(300px,1fr))}}
+  .pie-canvas-wrap{width:100%;max-width:340px;height:280px;margin:0 auto}
+  .pie-title{font-weight:800;text-align:center;color:var(--ink);margin:0 0 10px;font-size:16px}
+  .pie-legend{margin-top:12px;text-align:center;font-weight:700;color:var(--ink);font-size:14px}
+  .pie-legend .tax{color:#0c4a7d}
+  .pie-legend .net{color:#2a6e2a}
+
+  table.compare{width:100%;border-collapse:collapse;min-width:640px}
+  .cmp-section{margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .cmp-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+  .cmp-body{padding:0 22px 22px;overflow:auto}
+  .compare th{background:var(--blue);color:#fff;text-align:left;padding:12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;position:sticky;top:0}
+  .compare td{padding:12px;border-top:1px solid var(--border);font-weight:600;color:#000}
+  .compare tr:nth-child(even){background:#f7f9ff}
+</style>
+</head>
+<body>
+<section id="exportRoot">
+  <div class="wrap">
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head">Enter your details</div>
+        <div class="panel-body">
+          <div class="fields">
+            <div class="field">
+              <label>Annual gross income (AUD)</label>
+              <input class="control" id="gross" type="number" value="90000" step="500" min="0">
+            </div>
+            <div class="field">
+              <label>Add medical levy 2%</label>
+              <div class="toggle-wrap">
+                <div class="seg" id="mlSeg">
+                  <button type="button" data-val="on" class="active">YES</button>
+                  <button type="button" data-val="off">NO</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="tagline">
+          Explore your loan options with our smart calculators, then connect with Intelligent Financial Solutions to find the right deal.
+          <br/>We work for you, we work with banks
+        </p>
+
+        <div class="footer-actions">
+          <button class="btn" id="calcBtn">Calculate</button>
+          <button class="btn" id="pdfBtn">Download PDF</button>
+        </div>
+      </section>
+
+      <aside class="result panel">
+        <div class="result-head">
+          <div class="lead">YOUR ESTIMATED INCOME TAX</div>
+          <div class="amount" id="netTax">$0.00</div>
+          <div class="per">per year</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">Base income tax</div><div class="v" id="baseTax">$0.00</div></div>
+        </div>
+        <div class="logo-slot">
+          <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo">
+        </div>
+        <a href="https://calendly.com/henryifs/ifs-request-a-callback" class="cta">Book an appointment</a>
+      </aside>
+    </div>
+
+    <section class="pie-card">
+      <div class="pie-head">Tax breakdown</div>
+      <div class="pie-body">
+        <div class="pie-wrap">
+          <div class="pie-canvas-wrap">
+            <h3 class="pie-title">2024–2025</h3>
+            <canvas id="pieChart1"></canvas>
+            <div class="pie-legend">
+              <span class="tax">Tax: <span id="taxPct1">0%</span></span> •
+              <span class="net">Net Income: <span id="netPct1">0%</span></span>
+            </div>
+          </div>
+          <div class="pie-canvas-wrap">
+            <h3 class="pie-title">2025–2026</h3>
+            <canvas id="pieChart2"></canvas>
+            <div class="pie-legend">
+              <span class="tax">Tax: <span id="taxPct2">0%</span></span> •
+              <span class="net">Net Income: <span id="netPct2">0%</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cmp-section">
+      <div class="cmp-head">Net pay by frequency</div>
+      <div class="cmp-body">
+        <table class="compare" id="compareTable">
+          <thead><tr><th>Frequency</th><th>Net Pay</th><th>Total Tax</th><th>Base Tax</th><th>Medicare Levy</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</section>
+
+<script>
+  const $ = (s)=>document.querySelector(s);
+  const fmtAUD=(n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round((Number.isFinite(n)?n:0)*100)/100);
+
+  function residentBaseTax(x){
+    const t=Math.max(0,x);
+    if(t<=18200) return 0;
+    if(t<=45000) return 0.16*(t-18200);
+    if(t<=135000) return 4288 + 0.30*(t-45000);
+    if(t<=190000) return 31288 + 0.37*(t-135000);
+    return 51638 + 0.45*(t-190000);
+  }
+  function lito(x){
+    const t=Math.max(0,x);
+    if(t<=37500) return 700;
+    if(t<=45000) return 700 - 0.05*(t-37500);
+    if(t<=66667) return 325 - 0.015*(t-45000);
+    return 0;
+  }
+  function medicareLevy(x,apply){
+    const t=Math.max(0,x);
+    if(!apply) return 0;
+    const L=27222, U=34027;
+    if(t<=L) return 0;
+    if(t<U) return 0.10*(t-L);
+    return 0.02*t;
+  }
+
+  const grossEl=$('#gross');
+  const outNetTax=$('#netTax');
+  const outBase=$('#baseTax');
+  const cmpBody=$('#compareTable tbody');
+
+  let pie1, pie2, mlApply=true;
+
+  function calc(){
+    const gross=Number(grossEl.value)||0;
+    const taxable=Math.max(0,gross);
+    const base=residentBaseTax(taxable);
+    const litoAmt=Math.max(0,Math.min(base,lito(taxable)));
+    const mlAmt=medicareLevy(taxable,mlApply);
+    const netTax=Math.max(0,base-litoAmt)+mlAmt;
+    const takeHome=Math.max(0,gross-netTax);
+
+    outNetTax.textContent=fmtAUD(netTax,2);
+    outBase.textContent=fmtAUD(base,2);
+
+    fillTable(gross,netTax,base,mlAmt);
+    drawPie(gross,netTax,takeHome);
+  }
+
+  function fillTable(gross,netTax,base,mlAmt){
+    const rows=[{label:'Monthly',div:12},{label:'Fortnightly',div:26},{label:'Weekly',div:52}];
+    cmpBody.innerHTML='';
+    rows.forEach(r=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${r.label}</td>
+        <td>${fmtAUD((gross-netTax)/r.div,2)}</td>
+        <td>${fmtAUD(netTax/r.div,2)}</td>
+        <td>${fmtAUD(base/r.div,2)}</td>
+        <td>${fmtAUD(mlAmt/r.div,2)}</td>`;
+      cmpBody.appendChild(tr);
+    });
+  }
+
+  function drawPie(gross,tax,net){
+    const total=Math.max(1,gross);
+    const cleanTax=Math.max(0,tax);
+    const cleanNet=Math.max(0,net);
+
+    const taxPct=(cleanTax/total*100).toFixed(2);
+    const netPct=(cleanNet/total*100).toFixed(2);
+
+    document.getElementById('taxPct1').textContent = taxPct + '%';
+    document.getElementById('netPct1').textContent = netPct + '%';
+    document.getElementById('taxPct2').textContent = taxPct + '%';
+    document.getElementById('netPct2').textContent = netPct + '%';
+
+    const data={
+      labels:['Tax','Net Income'],
+      datasets:[{
+        data:[cleanTax, cleanNet],
+        backgroundColor:['#0c4a7d','#54b948'],
+        borderColor:'#ffffff',
+        borderWidth:3,
+        cutout:'55%',
+        hoverOffset:6
+      }]
+    };
+    const options={plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${c.label}: ${fmtAUD(c.parsed,2)}`}}},responsive:true,maintainAspectRatio:false};
+
+    if(pie1) pie1.destroy();
+    const ctx1=document.getElementById('pieChart1').getContext('2d');
+    pie1=new Chart(ctx1,{type:'doughnut',data,options});
+
+    if(pie2) pie2.destroy();
+    const ctx2=document.getElementById('pieChart2').getContext('2d');
+    pie2=new Chart(ctx2,{type:'doughnut',data,options});
+  }
+
+  function exportWholeUIToPDF(){
+    const root=document.getElementById('exportRoot');
+    html2canvas(root,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+      const imgData=canvas.toDataURL('image/png');
+      const { jsPDF }=window.jspdf;
+      const pdf=new jsPDF('p','mm','a4');
+      const pageWidth=pdf.internal.pageSize.getWidth();
+      const pageHeight=pdf.internal.pageSize.getHeight();
+      const imgWidth=pageWidth;
+      const imgHeight=canvas.height*imgWidth/canvas.width;
+      let heightLeft=imgHeight, pos=0;
+      pdf.addImage(imgData,'PNG',0,pos,imgWidth,imgHeight,'','FAST');
+      heightLeft-=pageHeight;
+      while(heightLeft>0){
+        pdf.addPage();
+        pos=-(imgHeight-heightLeft);
+        pdf.addImage(imgData,'PNG',0,pos,imgWidth,imgHeight,'','FAST');
+        heightLeft-=pageHeight;
+      }
+      pdf.save('IFS-income-tax-calculator.pdf');
+    });
+  }
+
+  function bind(){
+    $('#calcBtn').addEventListener('click',calc);
+    $('#pdfBtn').addEventListener('click',exportWholeUIToPDF);
+    grossEl.addEventListener('input',calc,{passive:true});
+    const seg=$('#mlSeg');
+    seg.addEventListener('click',e=>{
+      if(e.target.tagName!=='BUTTON') return;
+      seg.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      e.target.classList.add('active');
+      mlApply=e.target.dataset.val==='on';
+      calc();
+    });
+    calc();
+  }
+  bind();
+</script>
+</body>
+</html>
