@@ -45,7 +45,7 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
 .total{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:2px;border-top:2px solid var(--border);font-weight:900}
 .cta{display:block;margin:0 20px 20px;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
 .cta:hover{background:#00478a}
-[data-state="ACT_ONLY"],[data-state="NSW_ONLY"],[data-state="NT_ONLY"]{display:none}
+[data-state="ACT_ONLY"],[data-state="NSW_ONLY"],[data-state="NT_ONLY"],[data-state="QLD_ONLY"]{display:none}
 </style>
 </head>
 <body>
@@ -54,7 +54,6 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
     <div id="stateTabs"></div>
 
     <div class="grid">
-      <!-- Left panel -->
       <section class="panel">
         <div class="panel-head">Enter your details</div>
         <div class="panel-body">
@@ -89,7 +88,6 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
               </div>
             </div>
 
-            <!-- NSW ONLY — foreign purchaser toggle shows only in NSW -->
             <div class="field" data-state="NSW_ONLY">
               <label>Is Foreign Purchaser?</label>
               <div class="choices" data-toggle="foreign">
@@ -98,7 +96,14 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
               </div>
             </div>
 
-            <!-- NT ONLY — Eligible pensioner? -->
+            <div class="field" data-state="QLD_ONLY">
+              <label>Is Foreign Purchaser?</label>
+              <div class="choices" data-toggle="foreignQLD">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+
             <div class="field" data-state="NT_ONLY">
               <label>Eligible pensioner?</label>
               <div class="choices" data-toggle="pensionNT">
@@ -107,7 +112,6 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
               </div>
             </div>
 
-            <!-- ACT ONLY — these show only in ACT -->
             <div class="row-2" data-state="ACT_ONLY">
               <div class="field">
                 <label>Eligible pensioner?</label>
@@ -142,7 +146,6 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
         </div>
       </section>
 
-      <!-- Right panel -->
       <aside class="result panel">
         <div class="result-head">
           <div class="lead">Government Fees</div>
@@ -184,7 +187,6 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
 const fmtAUD=(n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round((+n||0)*100)/100);
 const byId=id=>document.getElementById(id),qs=(s,r=document)=>r.querySelector(s),qsa=(s,r=document)=>Array.from(r.querySelectorAll(s));
 
-/* ---------------- CONFIG (kept same for ACT/NSW; added NT only) ---------------- */
 const CONFIG={
   tabs:["ACT","NSW","NT","QLD","SA","TAS","VIC","WA"],
   duty:{
@@ -212,21 +214,36 @@ const CONFIG={
         {upTo:null, base:186667, rate:0.0700, lower:3721000}
       ]
     },
-    NT:{oo:null,inv:null},QLD:{oo:null,inv:null},SA:{oo:null,inv:null},TAS:{oo:null,inv:null},VIC:{oo:null,inv:null},WA:{oo:null,inv:null}
+    NT:{oo:null,inv:null},
+    QLD:{
+      oo:[
+        {upTo:5000, base:0, rate:0, lower:0},
+        {upTo:75000, base:0, rate:0.015, lower:5000},
+        {upTo:540000, base:1050, rate:0.035, lower:75000},
+        {upTo:1000000, base:17325, rate:0.045, lower:540000},
+        {upTo:null, base:38025, rate:0.0575, lower:1000000}
+      ],
+      inv:[
+        {upTo:5000, base:0, rate:0, lower:0},
+        {upTo:75000, base:0, rate:0.015, lower:5000},
+        {upTo:540000, base:1050, rate:0.035, lower:75000},
+        {upTo:1000000, base:17325, rate:0.045, lower:540000},
+        {upTo:null, base:38025, rate:0.0575, lower:1000000}
+      ]
+    },
+    SA:{oo:null,inv:null},TAS:{oo:null,inv:null},VIC:{oo:null,inv:null},WA:{oo:null,inv:null}
   },
   fees:{
     ACT:{transfer:479,mortgageReg:178},
     NSW:{transfer:175.70,mortgageReg:175.70},
     NT:{transfer:176,mortgageReg:176}
   },
-  // NSW FHOG (kept as before)
   fhog:(state,ctx)=>{
     if(state!=='NSW') return 0;
     const {fhb,price,purch,usage}=ctx||{};
     if(fhb && usage==='oo' && purch==='new' && price<=600000) return 10000;
     return 0;
   },
-  // NSW / ACT concessions (kept as before)
   concessions:(state,ctx)=>{
     if(state==='ACT'){
       const{fhb,price,usage,income,kids,pension}=ctx;
@@ -258,7 +275,6 @@ const CONFIG={
   }
 };
 
-/* tabs */
 const stateTabs=byId('stateTabs');let currentState='ACT';
 function drawTabs(){
   stateTabs.innerHTML='';
@@ -298,7 +314,6 @@ function computeGeneralDuty(brackets,V){
   return 0;
 }
 
-/* NT duty (official formula) */
 function calcDutyNT(price){
   if(price<=525000){
     const V=price/1000;
@@ -312,22 +327,20 @@ function calcDutyNT(price){
   }
 }
 
-/* visibility strictly per your rule + grant rows per state */
 function updateConditionalFields(){
-  // ACT-only inputs visible only in ACT
   qsa('[data-state="ACT_ONLY"]').forEach(el=>{
     el.style.display=(currentState==='ACT')?'grid':'none';
   });
-  // NSW-only input visible only in NSW
   qsa('[data-state="NSW_ONLY"]').forEach(el=>{
     el.style.display=(currentState==='NSW')?'block':'none';
   });
-  // NT-only input visible only in NT
   qsa('[data-state="NT_ONLY"]').forEach(el=>{
     el.style.display=(currentState==='NT')?'block':'none';
   });
+  qsa('[data-state="QLD_ONLY"]').forEach(el=>{
+    el.style.display=(currentState==='QLD')?'block':'none';
+  });
 
-  // Grant rows
   const fhogRow=byId('fhogRow'), nhgRow=byId('nhgRow'), homeRow=byId('homeGrantRow');
   if(currentState==='NSW'){
     if(fhogRow) fhogRow.style.display='flex';
@@ -337,14 +350,14 @@ function updateConditionalFields(){
     if(fhogRow) fhogRow.style.display='none';
     if(nhgRow) nhgRow.style.display='none';
     if(homeRow) homeRow.style.display='flex';
-  }else{ // other states: just FHOG row visible
+  }else{
     if(fhogRow) fhogRow.style.display='flex';
     if(nhgRow) nhgRow.style.display='none';
     if(homeRow) homeRow.style.display='none';
   }
 }
 
-const NT_PENSIONER_DISCOUNT_RATE = 0.5; // 50% duty discount when Eligible pensioner? = Yes (NT only)
+const NT_PENSIONER_DISCOUNT_RATE = 0.5;
 
 function recalc(){
   const price=+byId('price').value||0;
@@ -355,7 +368,8 @@ function recalc(){
   const income=+byId('income')?.value||0;
   const kids=getChoice('kids')||'0';
   const purch=getChoice('purch');
-  const foreign=(getChoice('foreign')==='yes');
+  const foreignNSW=(getChoice('foreign')==='yes');
+  const foreignQLD=(getChoice('foreignQLD')==='yes');
   const pensionNT=getChoice('pensionNT')==='yes';
 
   const feeRow=(CONFIG.fees[currentState]||{transfer:0,mortgageReg:0});
@@ -364,7 +378,7 @@ function recalc(){
   let duty=0;
   if(currentState==='NT'){
     duty=calcDutyNT(price);
-    if(pensionNT){ duty = duty * (1 - NT_PENSIONER_DISCOUNT_RATE); } // apply NT pensioner concession
+    if(pensionNT){ duty = duty * (1 - NT_PENSIONER_DISCOUNT_RATE); }
   }else{
     const brackets=getBrackets(currentState,usage);
     duty=computeGeneralDuty(brackets,price);
@@ -374,20 +388,24 @@ function recalc(){
   if(cons==='HBCS_FREE'||cons==='PENSION_FREE'||cons==='FHB_FREE')duty=0;
   else if(cons&&cons.type==='PENSION_REDUCE')duty=Math.max(0,duty-(cons.amount||0));
 
-  // NSW foreign purchaser surcharge
-  if(currentState==='NSW' && foreign){ duty += 0.09*price; }
+  if(currentState==='NSW' && foreignNSW){ duty += 0.09*price; }
+  if(currentState==='QLD' && foreignQLD){ duty += 0.08*price; }
 
-  // Grants
   let fhog=0, newHomeGrant=0, homeGrant=0;
   if(currentState==='NSW'){
     fhog=CONFIG.fhog(currentState,{fhb,price,purch,usage});
   }else if(currentState==='NT'){
-    homeGrant=(fhb && purch==='new') ? 50000 : 0; // HomeGrown Grant
+    if(purch==='new'){
+      homeGrant = fhb ? 50000 : 30000;
+    }else if(purch==='established'){
+      homeGrant = fhb ? 10000 : 0;
+    }else{
+      homeGrant = 0;
+    }
   }
 
   const totalGov=duty+transferFee+mortgageReg;
 
-  // Outputs
   byId('dutyOut').textContent=fmtAUD(duty,2);
   byId('transferOut').textContent=fmtAUD(transferFee,2);
   byId('mortRegOut').textContent=fmtAUD(mortgageReg,2);
@@ -402,7 +420,6 @@ function recalc(){
   byId('grantTotalOut').textContent=fmtAUD(grantTotal,0);
 }
 
-/* PDF */
 function exportWholeUIToPDF(){
   const root=document.getElementById('exportRoot');
   html2canvas(root,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
@@ -416,7 +433,6 @@ function exportWholeUIToPDF(){
   });
 }
 
-/* init */
 (function init(){
   drawTabs();bindChoiceGroups();updateConditionalFields();
   ['price','income'].forEach(id=>{
