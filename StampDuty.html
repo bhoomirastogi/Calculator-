@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Stamp Duty Calculator • IFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root{--blue:#003366;--blue-600:#00478a;--ink:#1f2937;--bg:#f6f8fb;--card:#ffffff;--border:#e5e7eb;--ring:#c9d7ff;--radius:16px;--shadow:0 14px 36px rgba(0,0,0,.08)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#1f2937}
+#exportRoot .wrap{max-width:100%;margin:0 auto;padding:36px 20px}
+#stateTabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:10px 14px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--blue);font-weight:800;cursor:pointer}
+.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:960px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+.panel-body{padding:22px}
+.fields{display:grid;gap:16px}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.row-2{grid-template-columns:1fr}}
+.choices{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
+.choice{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:center;font-weight:700;cursor:pointer}
+.choice.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.field label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
+.control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:15px;background:#fff}
+.control:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--ring);outline:0}
+.footer-actions{padding:0 22px 22px;display:flex;gap:10px;margin-top:auto;flex-wrap:wrap}
+.btn{flex:1;background:var(--blue);color:#fff;border:none;border-radius:999px;padding:14px 16px;font-weight:800;cursor:pointer;min-width:180px}
+.btn:hover{filter:brightness(0.95)}
+.result .result-head{text-align:center;padding:20px;border-bottom:1px solid var(--border)}
+.lead{font-weight:800;color:#5f6470;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.amount{font-size:clamp(32px,6vw,48px);font-weight:900;color:var(--blue);margin:6px 0 2px}
+.sections{display:grid;gap:28px;padding:18px 22px}
+.list{display:grid;gap:10px}
+.row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed #e3e6ef;padding:6px 0}
+.row .l{color:#5f6b7a;font-weight:700}
+.row .r{font-weight:800}
+.total{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:2px;border-top:2px solid var(--border);font-weight:900}
+.cta{display:block;margin:0 20px 20px;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
+.cta:hover{background:#00478a}
+[data-state="ACT_ONLY"],[data-state="NSW_ONLY"],[data-state="NT_ONLY"]{display:none}
+</style>
+</head>
+<body>
+<section id="exportRoot">
+  <div class="wrap">
+    <div id="stateTabs"></div>
+
+    <div class="grid">
+      <!-- Left panel -->
+      <section class="panel">
+        <div class="panel-head">Enter your details</div>
+        <div class="panel-body">
+          <div class="fields">
+            <div class="field">
+              <label>Are you first home buyer</label>
+              <div class="choices" data-toggle="fhb">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Value of Property</label>
+              <input id="price" class="control" type="number" value="350000" step="1000" min="0"/>
+            </div>
+
+            <div class="field">
+              <label>Property type</label>
+              <div class="choices" data-toggle="ptype">
+                <div class="choice active" data-value="oo">Primary residence</div>
+                <div class="choice" data-value="inv">Investment</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Are you purchasing</label>
+              <div class="choices" data-toggle="purch">
+                <div class="choice active" data-value="established">Established Home</div>
+                <div class="choice" data-value="new">New Home</div>
+                <div class="choice" data-value="land">Vacant Land</div>
+              </div>
+            </div>
+
+            <!-- NSW ONLY — foreign purchaser toggle shows only in NSW -->
+            <div class="field" data-state="NSW_ONLY">
+              <label>Is Foreign Purchaser?</label>
+              <div class="choices" data-toggle="foreign">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+
+            <!-- NT ONLY — Eligible pensioner? -->
+            <div class="field" data-state="NT_ONLY">
+              <label>Eligible pensioner?</label>
+              <div class="choices" data-toggle="pensionNT">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+
+            <!-- ACT ONLY — these show only in ACT -->
+            <div class="row-2" data-state="ACT_ONLY">
+              <div class="field">
+                <label>Eligible pensioner?</label>
+                <div class="choices" data-toggle="pension">
+                  <div class="choice active" data-value="no">No</div>
+                  <div class="choice" data-value="yes">Yes</div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Total income of all purchasers</label>
+                <input id="income" class="control" type="number" value="80000" step="1000" min="0"/>
+              </div>
+            </div>
+
+            <div class="field" data-state="ACT_ONLY">
+              <label>Number of dependent children</label>
+              <div class="choices" data-toggle="kids">
+                <div class="choice active" data-value="0">0</div>
+                <div class="choice" data-value="1">1</div>
+                <div class="choice" data-value="2">2</div>
+                <div class="choice" data-value="3">3</div>
+                <div class="choice" data-value="4">4</div>
+                <div class="choice" data-value="5+">5+</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn" id="calcBtn">Calculate</button>
+          <button class="btn" id="pdfBtn">Download PDF</button>
+        </div>
+      </section>
+
+      <!-- Right panel -->
+      <aside class="result panel">
+        <div class="result-head">
+          <div class="lead">Government Fees</div>
+          <div class="amount" id="totalFees">$0.00</div>
+          <div class="per" id="feesNote">Includes duty & state fees</div>
+        </div>
+
+        <div class="sections">
+          <div>
+            <div class="list">
+              <div class="row"><div class="l">Stamp Duty on Property</div><div class="r" id="dutyOut">$0.00</div></div>
+              <div class="row"><div class="l">Mortgage Registration</div><div class="r" id="mortRegOut">$0.00</div></div>
+              <div class="row"><div class="l">Transfer Fee</div><div class="r" id="transferOut">$0.00</div></div>
+              <div class="total"><div>Total Government Fees</div><div id="totalGovOut">$0.00</div></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="lead" style="letter-spacing:.1em;color:#5f6470;margin-bottom:8px;text-transform:uppercase">Government Grant</div>
+            <div class="list">
+              <div class="row" id="fhogRow"><div class="l">First Home Owner Grant</div><div class="r" id="fhogOut">$0</div></div>
+              <div class="row" id="nhgRow"><div class="l">New Home Grant</div><div class="r" id="nhgOut">$0</div></div>
+              <div class="row" id="homeGrantRow"><div class="l">HomeGrown Grant</div><div class="r" id="homeGrantOut">$0</div></div>
+              <div class="total"><div>Total Government Grant</div><div id="grantTotalOut">$0</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin:20px 0 4px;">
+          <img src="https://intelligentfs.com.au/wp-content/uploads/2025/04/we-work_-full-lockup@300x-scaled.png" alt="IFS Logo" style="height:60px;width:auto;">
+        </div>
+        <a href="https://calendly.com/henryifs/ifs-request-a-callback" class="cta">Book an appointment</a>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+const fmtAUD=(n,d=2)=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round((+n||0)*100)/100);
+const byId=id=>document.getElementById(id),qs=(s,r=document)=>r.querySelector(s),qsa=(s,r=document)=>Array.from(r.querySelectorAll(s));
+
+/* ---------------- CONFIG (kept same for ACT/NSW; added NT only) ---------------- */
+const CONFIG={
+  tabs:["ACT","NSW","NT","QLD","SA","TAS","VIC","WA"],
+  duty:{
+    ACT:{
+      oo:[{upTo:260000,base:0,rate:0.0028,lower:0},{upTo:300000,base:728,rate:0.0220,lower:260000},{upTo:500000,base:1608,rate:0.0340,lower:300000},{upTo:750000,base:8408,rate:0.0432,lower:500000},{upTo:1000000,base:19208,rate:0.0590,lower:750000},{upTo:1455000,base:33958,rate:0.0640,lower:1000000},{upTo:null,base:0,rate:0.0454,lower:0}],
+      inv:[{upTo:200000,base:0,rate:0.0120,lower:0},{upTo:300000,base:2400,rate:0.0220,lower:200000},{upTo:500000,base:4600,rate:0.0340,lower:300000},{upTo:750000,base:11400,rate:0.0432,lower:500000},{upTo:1000000,base:22200,rate:0.0590,lower:750000},{upTo:1455000,base:36950,rate:0.0640,lower:1000000},{upTo:null,base:0,rate:0.0454,lower:0}]
+    },
+    NSW:{
+      oo:[
+        {upTo:17000, base:0, rate:0.0125, lower:0},
+        {upTo:37000, base:212, rate:0.0150, lower:17000},
+        {upTo:99000, base:512, rate:0.0175, lower:37000},
+        {upTo:372000, base:1597, rate:0.0350, lower:99000},
+        {upTo:1240000, base:11152, rate:0.0450, lower:372000},
+        {upTo:3721000, base:50212, rate:0.0550, lower:1240000},
+        {upTo:null, base:186667, rate:0.0700, lower:3721000}
+      ],
+      inv:[
+        {upTo:17000, base:0, rate:0.0125, lower:0},
+        {upTo:37000, base:212, rate:0.0150, lower:17000},
+        {upTo:99000, base:512, rate:0.0175, lower:37000},
+        {upTo:372000, base:1597, rate:0.0350, lower:99000},
+        {upTo:1240000, base:11152, rate:0.0450, lower:372000},
+        {upTo:3721000, base:50212, rate:0.0550, lower:1240000},
+        {upTo:null, base:186667, rate:0.0700, lower:3721000}
+      ]
+    },
+    NT:{oo:null,inv:null},QLD:{oo:null,inv:null},SA:{oo:null,inv:null},TAS:{oo:null,inv:null},VIC:{oo:null,inv:null},WA:{oo:null,inv:null}
+  },
+  fees:{
+    ACT:{transfer:479,mortgageReg:178},
+    NSW:{transfer:175.70,mortgageReg:175.70},
+    NT:{transfer:176,mortgageReg:176}
+  },
+  // NSW FHOG (kept as before)
+  fhog:(state,ctx)=>{
+    if(state!=='NSW') return 0;
+    const {fhb,price,purch,usage}=ctx||{};
+    if(fhb && usage==='oo' && purch==='new' && price<=600000) return 10000;
+    return 0;
+  },
+  // NSW / ACT concessions (kept as before)
+  concessions:(state,ctx)=>{
+    if(state==='ACT'){
+      const{fhb,price,usage,income,kids,pension}=ctx;
+      const incLimitMap={'0':250000,'1':254600,'2':259200,'3':263800,'4':268400,'5+':273000};
+      const incLimit=incLimitMap[kids]??250000;
+      if(fhb&&usage==='oo'&&income<=incLimit)return'HBCS_FREE';
+      if(pension&&usage==='oo'){
+        if(price<=1020000)return'PENSION_FREE';
+        return{type:'PENSION_REDUCE',amount:35238};
+      }
+      return 0;
+    }
+    if(state==='NSW'){
+      const {fhb,price,purch,usage}=ctx;
+      if(!(fhb && usage==='oo')) return 0;
+      if(purch==='established'||purch==='new'){
+        if(price<=800000)return'FHB_FREE';
+        if(price<=1000000)return'FHB_CONCESSIONAL';
+        return 0;
+      }
+      if(purch==='land'){
+        if(price<=350000)return'FHB_FREE';
+        if(price<=450000)return'FHB_CONCESSIONAL';
+        return 0;
+      }
+      return 0;
+    }
+    return 0;
+  }
+};
+
+/* tabs */
+const stateTabs=byId('stateTabs');let currentState='ACT';
+function drawTabs(){
+  stateTabs.innerHTML='';
+  CONFIG.tabs.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tab'+(t===currentState?' active':'');
+    el.textContent=t;
+    el.addEventListener('click',()=>{
+      currentState=t;
+      qsa('.tab',stateTabs).forEach(x=>x.classList.remove('active'));
+      el.classList.add('active');
+      updateConditionalFields();
+      recalc();
+    });
+    stateTabs.appendChild(el);
+  });
+}
+
+function bindChoiceGroups(){
+  qsa('[data-toggle]').forEach(g=>{
+    qsa('.choice',g).forEach(ch=>{
+      ch.addEventListener('click',()=>{
+        qsa('.choice',g).forEach(x=>x.classList.remove('active'));
+        ch.classList.add('active');
+        recalc();
+      });
+    });
+  });
+}
+const getChoice=name=>{const g=qs(`[data-toggle="${name}"]`),a=g?g.querySelector('.choice.active'):null;return a?a.getAttribute('data-value'):null};
+function getBrackets(state,usage){const s=CONFIG.duty[state]||{};return(s&&(s[usage]||s.oo))||null}
+function computeGeneralDuty(brackets,V){
+  if(!brackets||!V)return 0;
+  for(const b of brackets){
+    if(b.upTo===null||V<=b.upTo){return Math.max(0,(b.base||0)+(b.rate||0)*(V-(b.lower||0))); }
+  }
+  return 0;
+}
+
+/* NT duty (official formula) */
+function calcDutyNT(price){
+  if(price<=525000){
+    const V=price/1000;
+    return (0.06571441*(V*V)) + (15*V);
+  }else if(price<3000000){
+    return price*0.0495;
+  }else if(price<5000000){
+    return price*0.0575;
+  }else{
+    return price*0.0595;
+  }
+}
+
+/* visibility strictly per your rule + grant rows per state */
+function updateConditionalFields(){
+  // ACT-only inputs visible only in ACT
+  qsa('[data-state="ACT_ONLY"]').forEach(el=>{
+    el.style.display=(currentState==='ACT')?'grid':'none';
+  });
+  // NSW-only input visible only in NSW
+  qsa('[data-state="NSW_ONLY"]').forEach(el=>{
+    el.style.display=(currentState==='NSW')?'block':'none';
+  });
+  // NT-only input visible only in NT
+  qsa('[data-state="NT_ONLY"]').forEach(el=>{
+    el.style.display=(currentState==='NT')?'block':'none';
+  });
+
+  // Grant rows
+  const fhogRow=byId('fhogRow'), nhgRow=byId('nhgRow'), homeRow=byId('homeGrantRow');
+  if(currentState==='NSW'){
+    if(fhogRow) fhogRow.style.display='flex';
+    if(nhgRow) nhgRow.style.display='flex';
+    if(homeRow) homeRow.style.display='none';
+  }else if(currentState==='NT'){
+    if(fhogRow) fhogRow.style.display='none';
+    if(nhgRow) nhgRow.style.display='none';
+    if(homeRow) homeRow.style.display='flex';
+  }else{ // other states: just FHOG row visible
+    if(fhogRow) fhogRow.style.display='flex';
+    if(nhgRow) nhgRow.style.display='none';
+    if(homeRow) homeRow.style.display='none';
+  }
+}
+
+const NT_PENSIONER_DISCOUNT_RATE = 0.5; // 50% duty discount when Eligible pensioner? = Yes (NT only)
+
+function recalc(){
+  const price=+byId('price').value||0;
+  const fhb=getChoice('fhb')==='yes';
+  const ptype=getChoice('ptype')||'oo';
+  const usage=(ptype==='inv')?'inv':'oo';
+  const pension=getChoice('pension')==='yes';
+  const income=+byId('income')?.value||0;
+  const kids=getChoice('kids')||'0';
+  const purch=getChoice('purch');
+  const foreign=(getChoice('foreign')==='yes');
+  const pensionNT=getChoice('pensionNT')==='yes';
+
+  const feeRow=(CONFIG.fees[currentState]||{transfer:0,mortgageReg:0});
+  const transferFee=+feeRow.transfer||0,mortgageReg=+feeRow.mortgageReg||0;
+
+  let duty=0;
+  if(currentState==='NT'){
+    duty=calcDutyNT(price);
+    if(pensionNT){ duty = duty * (1 - NT_PENSIONER_DISCOUNT_RATE); } // apply NT pensioner concession
+  }else{
+    const brackets=getBrackets(currentState,usage);
+    duty=computeGeneralDuty(brackets,price);
+  }
+
+  const cons=CONFIG.concessions(currentState,{fhb,pension,price,usage,income,kids,purch});
+  if(cons==='HBCS_FREE'||cons==='PENSION_FREE'||cons==='FHB_FREE')duty=0;
+  else if(cons&&cons.type==='PENSION_REDUCE')duty=Math.max(0,duty-(cons.amount||0));
+
+  // NSW foreign purchaser surcharge
+  if(currentState==='NSW' && foreign){ duty += 0.09*price; }
+
+  // Grants
+  let fhog=0, newHomeGrant=0, homeGrant=0;
+  if(currentState==='NSW'){
+    fhog=CONFIG.fhog(currentState,{fhb,price,purch,usage});
+  }else if(currentState==='NT'){
+    homeGrant=(fhb && purch==='new') ? 50000 : 0; // HomeGrown Grant
+  }
+
+  const totalGov=duty+transferFee+mortgageReg;
+
+  // Outputs
+  byId('dutyOut').textContent=fmtAUD(duty,2);
+  byId('transferOut').textContent=fmtAUD(transferFee,2);
+  byId('mortRegOut').textContent=fmtAUD(mortgageReg,2);
+  byId('totalGovOut').textContent=fmtAUD(totalGov,2);
+  byId('totalFees').textContent=fmtAUD(totalGov,2);
+
+  byId('fhogOut').textContent=fmtAUD(fhog,0);
+  byId('nhgOut').textContent=fmtAUD(newHomeGrant,0);
+  byId('homeGrantOut').textContent=fmtAUD(homeGrant,0);
+
+  const grantTotal = (currentState==='NT') ? homeGrant : (fhog+newHomeGrant);
+  byId('grantTotalOut').textContent=fmtAUD(grantTotal,0);
+}
+
+/* PDF */
+function exportWholeUIToPDF(){
+  const root=document.getElementById('exportRoot');
+  html2canvas(root,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+    const{jsPDF}=window.jspdf;
+    const pdf=new jsPDF('p','mm','a4');
+    const pageWidth=pdf.internal.pageSize.getWidth();
+    const imgWidth=pageWidth;
+    const imgHeight=canvas.height*imgWidth/canvas.width;
+    pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,imgWidth,imgHeight);
+    pdf.save(`IFS-stamp-duty-${currentState}.pdf`);
+  });
+}
+
+/* init */
+(function init(){
+  drawTabs();bindChoiceGroups();updateConditionalFields();
+  ['price','income'].forEach(id=>{
+    const el=byId(id);
+    if(el){ el.addEventListener('input',recalc,{passive:true}); el.addEventListener('change',recalc,{passive:true}); }
+  });
+  byId('calcBtn').addEventListener('click',recalc);
+  byId('pdfBtn').addEventListener('click',exportWholeUIToPDF);
+  recalc();
+})();
+</script>
+</body>
+</html>
