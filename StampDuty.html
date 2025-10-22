@@ -15,37 +15,37 @@
 body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#1f2937}
 #exportRoot .wrap{max-width:100%;margin:0 auto;padding:36px 20px}
 #stateTabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.tab{padding:10px 14px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--blue);font-weight:800;cursor:pointer}
-.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tab{padding:10px 14px;border:1px solid var(--border);border-radius:999px;background:#fff;color:#003366;font-weight:800;cursor:pointer}
+.tab.active{background:#003366;color:#fff;border-color:#003366}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 @media(max-width:960px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column}
-.panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:var(--blue)}
+.panel{background:#ffffff;border:1px solid var(--border);border-radius:16px;box-shadow:0 14px 36px rgba(0,0,0,.08);display:flex;flex-direction:column}
+.panel-head{padding:18px 22px;border-bottom:1px solid var(--border);font-weight:800;color:#003366}
 .panel-body{padding:22px}
 .fields{display:grid;gap:16px}
 .row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:640px){.row-2{grid-template-columns:1fr}}
 .choices{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
 .choice{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:center;font-weight:700;cursor:pointer}
-.choice.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.choice.active{background:#003366;color:#fff;border-color:#003366}
 .field label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
 .control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:15px;background:#fff}
-.control:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--ring);outline:0}
+.control:focus{border-color:#003366;box-shadow:0 0 0 4px #c9d7ff;outline:0}
 .footer-actions{padding:0 22px 22px;display:flex;gap:10px;margin-top:auto;flex-wrap:wrap}
-.btn{flex:1;background:var(--blue);color:#fff;border:none;border-radius:999px;padding:14px 16px;font-weight:800;cursor:pointer;min-width:180px}
+.btn{flex:1;background:#003366;color:#fff;border:none;border-radius:999px;padding:14px 16px;font-weight:800;cursor:pointer;min-width:180px}
 .btn:hover{filter:brightness(0.95)}
 .result .result-head{text-align:center;padding:20px;border-bottom:1px solid var(--border)}
 .lead{font-weight:800;color:#5f6470;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
-.amount{font-size:clamp(32px,6vw,48px);font-weight:900;color:var(--blue);margin:6px 0 2px}
+.amount{font-size:clamp(32px,6vw,48px);font-weight:900;color:#003366;margin:6px 0 2px}
 .sections{display:grid;gap:28px;padding:18px 22px}
 .list{display:grid;gap:10px}
 .row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed #e3e6ef;padding:6px 0}
 .row .l{color:#5f6b7a;font-weight:700}
 .row .r{font-weight:800}
 .total{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:2px;border-top:2px solid var(--border);font-weight:900}
-.cta{display:block;margin:0 20px 20px;background:var(--blue);color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
+.cta{display:block;margin:0 20px 20px;background:#003366;color:#fff;padding:14px;border-radius:999px;font-weight:800;text-align:center;text-decoration:none}
 .cta:hover{background:#00478a}
-[data-state="ACT_ONLY"],[data-state="NSW_ONLY"],[data-state="NT_ONLY"],[data-state="QLD_ONLY"]{display:none}
+[data-state="ACT_ONLY"],[data-state="NSW_ONLY"],[data-state="NT_ONLY"],[data-state="QLD_ONLY"],[data-state="SA_ONLY"],[data-state="TAS_ONLY"],[data-state="VIC_ONLY"],[data-state="WA_ONLY"]{display:none}
 </style>
 </head>
 <body>
@@ -61,8 +61,8 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
             <div class="field">
               <label>Are you first home buyer</label>
               <div class="choices" data-toggle="fhb">
-                <div class="choice active" data-value="no">No</div>
-                <div class="choice" data-value="yes">Yes</div>
+                <div class="choice" data-value="no">No</div>
+                <div class="choice active" data-value="yes">Yes</div>
               </div>
             </div>
 
@@ -82,9 +82,33 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
             <div class="field">
               <label>Are you purchasing</label>
               <div class="choices" data-toggle="purch">
-                <div class="choice active" data-value="established">Established Home</div>
-                <div class="choice" data-value="new">New Home</div>
+                <div class="choice" data-value="established">Established Home</div>
+                <div class="choice active" data-value="new">New Home</div>
                 <div class="choice" data-value="land">Vacant Land</div>
+              </div>
+            </div>
+
+            <div class="field" data-state="WA_ONLY">
+              <label>Property Location</label>
+              <select id="waLoc1" class="control">
+                <option value="south" selected>South of the 26th parallel (from Kalbarri 6536)</option>
+                <option value="north">North of the 26th parallel (from Kalbarri 6536)</option>
+              </select>
+            </div>
+
+            <div class="field" data-state="WA_ONLY">
+              <label>Property Location 2</label>
+              <select id="waLoc2" class="control">
+                <option value="metro" selected>Perth Metro and Peel regions</option>
+                <option value="non_metro">Outside Perth Metro and Peel regions</option>
+              </select>
+            </div>
+
+            <div class="field" data-state="WA_ONLY">
+              <label>Is Foreign Purchaser?</label>
+              <div class="choices" data-toggle="foreignWA">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
               </div>
             </div>
 
@@ -99,6 +123,14 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
             <div class="field" data-state="QLD_ONLY">
               <label>Is Foreign Purchaser?</label>
               <div class="choices" data-toggle="foreignQLD">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+
+            <div class="field" data-state="SA_ONLY">
+              <label>Is Foreign Purchaser?</label>
+              <div class="choices" data-toggle="foreignSA">
                 <div class="choice active" data-value="no">No</div>
                 <div class="choice" data-value="yes">Yes</div>
               </div>
@@ -138,6 +170,45 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
               </div>
             </div>
 
+            <div class="field" data-state="TAS_ONLY">
+              <label>Eligible pensioner?</label>
+              <div class="choices" data-toggle="pensionTAS">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+
+            <div class="field" data-state="TAS_ONLY">
+              <label>Is Foreign Purchaser?</label>
+              <div class="choices" data-toggle="foreignTAS">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+            
+            <div class="field" data-state="VIC_ONLY">
+              <label>Eligible pensioner?</label>
+              <div class="choices" data-toggle="pensionVIC">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+            <div class="field" data-state="VIC_ONLY">
+              <label>Is Foreign Purchaser?</label>
+              <div class="choices" data-toggle="foreignVIC">
+                <div class="choice active" data-value="no">No</div>
+                <div class="choice" data-value="yes">Yes</div>
+              </div>
+            </div>
+             <div class="field" data-state="VIC_ONLY">
+              <label>Payment Method</label>
+              <div class="choices" data-toggle="paymentVIC">
+                <div class="choice" data-value="paper">Paper Transaction</div>
+                <div class="choice active" data-value="electronic">Electronic Transaction</div>
+              </div>
+            </div>
+
+
           </div>
         </div>
         <div class="footer-actions">
@@ -149,7 +220,7 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
       <aside class="result panel">
         <div class="result-head">
           <div class="lead">Government Fees</div>
-          <div class="amount" id="totalFees">$0.00</div>
+          <div class="amount" id="totalFees">$657.00</div>
           <div class="per" id="feesNote">Includes duty & state fees</div>
         </div>
 
@@ -157,19 +228,19 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
           <div>
             <div class="list">
               <div class="row"><div class="l">Stamp Duty on Property</div><div class="r" id="dutyOut">$0.00</div></div>
-              <div class="row"><div class="l">Mortgage Registration</div><div class="r" id="mortRegOut">$0.00</div></div>
-              <div class="row"><div class="l">Transfer Fee</div><div class="r" id="transferOut">$0.00</div></div>
-              <div class="total"><div>Total Government Fees</div><div id="totalGovOut">$0.00</div></div>
+              <div class="row"><div class="l">Mortgage Registration</div><div class="r" id="mortRegOut">$178.80</div></div>
+              <div class="row"><div class="l">Transfer Fee</div><div class="r" id="transferOut">$479.00</div></div>
+              <div class="total"><div>Total Government Fees</div><div id="totalGovOut">$657.00</div></div>
             </div>
           </div>
 
           <div>
             <div class="lead" style="letter-spacing:.1em;color:#5f6470;margin-bottom:8px;text-transform:uppercase">Government Grant</div>
             <div class="list">
-              <div class="row" id="fhogRow"><div class="l">First Home Owner Grant</div><div class="r" id="fhogOut">$0</div></div>
+              <div class="row" id="fhogRow"><div class="l">First Home Owner Grant</div><div class="r" id="fhogOut">$10,000</div></div>
               <div class="row" id="nhgRow"><div class="l">New Home Grant</div><div class="r" id="nhgOut">$0</div></div>
               <div class="row" id="homeGrantRow"><div class="l">HomeGrown Grant</div><div class="r" id="homeGrantOut">$0</div></div>
-              <div class="total"><div>Total Government Grant</div><div id="grantTotalOut">$0</div></div>
+              <div class="total"><div>Total Government Grant</div><div id="grantTotalOut">$10,000</div></div>
             </div>
           </div>
         </div>
@@ -231,12 +302,76 @@ const CONFIG={
         {upTo:null, base:38025, rate:0.0575, lower:1000000}
       ]
     },
-    SA:{oo:null,inv:null},TAS:{oo:null,inv:null},VIC:{oo:null,inv:null},WA:{oo:null,inv:null}
+    SA:{
+      oo:[
+        {upTo:12000, base:0, rate:0.01, lower:0},
+        {upTo:30000, base:120, rate:0.02, lower:12000},
+        {upTo:50000, base:480, rate:0.03, lower:30000},
+        {upTo:100000, base:1080, rate:0.035, lower:50000},
+        {upTo:200000, base:2830, rate:0.04, lower:100000},
+        {upTo:250000, base:6830, rate:0.0425, lower:200000},
+        {upTo:300000, base:8955, rate:0.0475, lower:250000},
+        {upTo:500000, base:11330, rate:0.05, lower:300000},
+        {upTo:null, base:21330, rate:0.055, lower:500000}
+      ],
+      inv:[
+        {upTo:12000, base:0, rate:0.01, lower:0},
+        {upTo:30000, base:120, rate:0.02, lower:12000},
+        {upTo:50000, base:480, rate:0.03, lower:30000},
+        {upTo:100000, base:1080, rate:0.035, lower:50000},
+        {upTo:200000, base:2830, rate:0.04, lower:100000},
+        {upTo:250000, base:6830, rate:0.0425, lower:200000},
+        {upTo:300000, base:8955, rate:0.0475, lower:250000},
+        {upTo:500000, base:11330, rate:0.05, lower:300000},
+        {upTo:null, base:21330, rate:0.055, lower:500000}
+      ]
+    },
+    TAS:{
+      oo:[
+        {upTo:3000,   base:50,    rate:0,       lower:0},
+        {upTo:25000,  base:50,    rate:0.0175,  lower:3000},
+        {upTo:75000,  base:435,   rate:0.0225,  lower:25000},
+        {upTo:200000, base:1560,  rate:0.035,   lower:75000},
+        {upTo:375000, base:5935,  rate:0.04,    lower:200000},
+        {upTo:725000, base:12935, rate:0.0425,  lower:375000},
+        {upTo:null,   base:27810, rate:0.045,   lower:725000}
+      ],
+      inv:[
+        {upTo:3000,   base:50,    rate:0,       lower:0},
+        {upTo:25000,  base:50,    rate:0.0175,  lower:3000},
+        {upTo:75000,  base:435,   rate:0.0225,  lower:25000},
+        {upTo:200000, base:1560,  rate:0.035,   lower:75000},
+        {upTo:375000, base:5935,  rate:0.04,    lower:200000},
+        {upTo:725000, base:12935,  rate:0.0425,  lower:375000},
+        {upTo:null,   base:27810, rate:0.045,   lower:725000}
+      ]
+    },
+    VIC:{
+      oo:[
+        {upTo:25000, base:0, rate:0.014, lower:0},
+        {upTo:130000, base:350, rate:0.024, lower:25000},
+        {upTo:960000, base:2870, rate:0.06, lower:130000},
+        {upTo:2000000, base:0, rate:0.055, lower:0},
+        {upTo:null, base:110000, rate:0.065, lower:2000000}
+      ],
+      inv:[
+        {upTo:25000, base:0, rate:0.014, lower:0},
+        {upTo:130000, base:350, rate:0.024, lower:25000},
+        {upTo:960000, base:2870, rate:0.06, lower:130000},
+        {upTo:2000000, base:0, rate:0.055, lower:0},
+        {upTo:null, base:110000, rate:0.065, lower:2000000}
+      ]
+    },
+    WA:{oo:null,inv:null}
   },
   fees:{
     ACT:{transfer:479,mortgageReg:178},
     NSW:{transfer:175.70,mortgageReg:175.70},
-    NT:{transfer:176,mortgageReg:176}
+    NT:{transfer:176,mortgageReg:176},
+    SA:{transfer:198,mortgageReg:198},
+    TAS:{transfer:250.21,mortgageReg:163.30},
+    VIC:{transfer:175.70,mortgageReg:175.70},
+    WA:{transfer:286.60,mortgageReg:216.60}
   },
   fhog:(state,ctx)=>{
     if(state!=='NSW') return 0;
@@ -305,11 +440,60 @@ function bindChoiceGroups(){
   });
 }
 const getChoice=name=>{const g=qs(`[data-toggle="${name}"]`),a=g?g.querySelector('.choice.active'):null;return a?a.getAttribute('data-value'):null};
-function getBrackets(state,usage){const s=CONFIG.duty[state]||{};return(s&&(s[usage]||s.oo))||null}
+
+function computeGeneralDutyVIC(V){
+  if (V <= 25000) {
+    return 0.014 * V;
+  } else if (V <= 130000) {
+    return 350 + 0.024 * (V - 25000);
+  } else if (V <= 960000) {
+    return 2870 + 0.06 * (V - 130000);
+  } else if (V <= 2000000) {
+    return 0.055 * V;
+  } else {
+    return 110000 + 0.065 * (V - 2000000);
+  }
+}
+
+function computePPRDutyVIC(V){
+  if (V <= 130000) {
+    return computeGeneralDutyVIC(V);
+  } else if (V <= 440000) {
+    return 2870 + 0.05 * (V - 130000);
+  } else if (V <= 550000) {
+    return 18370 + 0.06 * (V - 440000);
+  } else {
+    return computeGeneralDutyVIC(V);
+  }
+}
+
 function computeGeneralDuty(brackets,V){
   if(!brackets||!V)return 0;
+  if(currentState === 'VIC'){ return computeGeneralDutyVIC(V); }
   for(const b of brackets){
-    if(b.upTo===null||V<=b.upTo){return Math.max(0,(b.base||0)+(b.rate||0)*(V-(b.lower||0))); }
+    if(b.upTo===null){
+      return Math.max(0,(b.base||0)+(b.rate||0)*(V-(b.lower||0)));
+    } else if(V<=b.upTo){
+      if(b.base === 0 && b.lower === 0 && b.rate === 0.055 && b.upTo === 2000000 && V > 960000){
+        return V * b.rate;
+      }
+      return Math.max(0,(b.base||0)+(b.rate||0)*(V-(b.lower||0)));
+    }
+  }
+  return 0;
+}
+
+function getBrackets(state,usage){const s=CONFIG.duty[state]||{};return(s&&(s[usage]||s.oo))||null}
+function computeDutySA(price,usage){
+  const brackets=getBrackets('SA',usage);
+  if(!brackets||!price)return 0;
+  for(const b of brackets){
+    if(b.upTo===null||price<=b.upTo){
+      const over=Math.max(0,price-(b.lower||0));
+      const steps=Math.ceil(over/100);
+      const per100=(b.rate||0)*100;
+      return Math.max(0,(b.base||0)+steps*per100);
+    }
   }
   return 0;
 }
@@ -340,6 +524,18 @@ function updateConditionalFields(){
   qsa('[data-state="QLD_ONLY"]').forEach(el=>{
     el.style.display=(currentState==='QLD')?'block':'none';
   });
+  qsa('[data-state="SA_ONLY"]').forEach(el=>{
+    el.style.display=(currentState==='SA')?'block':'none';
+  });
+  qsa('[data-state="TAS_ONLY"]').forEach(el=>{
+    el.style.display=(currentState==='TAS')?'block':'none';
+  });
+  qsa('[data-state="VIC_ONLY"]').forEach(el=>{
+    el.style.display=(currentState==='VIC')?'block':'none';
+  });
+  qsa('[data-state="WA_ONLY"]').forEach(el=>{
+    el.style.display=(currentState==='WA')?'block':'none';
+  });
 
   const fhogRow=byId('fhogRow'), nhgRow=byId('nhgRow'), homeRow=byId('homeGrantRow');
   if(currentState==='NSW'){
@@ -368,32 +564,180 @@ function recalc(){
   const income=+byId('income')?.value||0;
   const kids=getChoice('kids')||'0';
   const purch=getChoice('purch');
+
   const foreignNSW=(getChoice('foreign')==='yes');
   const foreignQLD=(getChoice('foreignQLD')==='yes');
+  const foreignSA=(getChoice('foreignSA')==='yes');
   const pensionNT=getChoice('pensionNT')==='yes';
 
-  const feeRow=(CONFIG.fees[currentState]||{transfer:0,mortgageReg:0});
-  const transferFee=+feeRow.transfer||0,mortgageReg=+feeRow.mortgageReg||0;
+  const pensionTAS=getChoice('pensionTAS')==='yes';
+  const foreignTAS=getChoice('foreignTAS')==='yes';
+  
+  const pensionVIC=getChoice('pensionVIC')==='yes';
+  const foreignVIC=(getChoice('foreignVIC')==='yes');
+  const paymentVIC=getChoice('paymentVIC')||'paper';
+  const foreignWA=(getChoice('foreignWA')==='yes');
+
+  let transferFee=CONFIG.fees[currentState].transfer;
+  let mortgageReg=CONFIG.fees[currentState].mortgageReg;
 
   let duty=0;
+  let surcharge = 0;
+
   if(currentState==='NT'){
     duty=calcDutyNT(price);
     if(pensionNT){ duty = duty * (1 - NT_PENSIONER_DISCOUNT_RATE); }
+  }else if(currentState==='SA'){
+    duty=computeDutySA(price,usage);
+  }else if(currentState==='WA'){
+    const waRegion = byId('waLoc2') ? byId('waLoc2').value : 'metro';
+    const isLand = purch==='land';
+    const isHome = purch==='established' || purch==='new';
+    function waGeneral(v){
+      if(v<=120000) return 0.019*v;
+      if(v<=150000) return 2280 + 0.0285*(v-120000);
+      if(v<=360000) return 3135 + 0.038*(v-150000);
+      if(v<=725000) return 11115 + 0.0475*(v-360000);
+      return 28453 + 0.0515*(v-725000);
+    }
+    function waConcessional(v){
+      if(v<=120000) return 0.015*v;
+      return 1800 + 0.0404*(v-120000);
+    }
+    function waTransfer(v){
+      if(v<=85000) return 216.60;
+      if(v<=120000) return 226.60;
+      if(v<=200000) return 246.60;
+      if(v<=300000) return 266.60;
+      if(v<=400000) return 286.60;
+      if(v<=500000) return 306.60;
+      if(v<=600000) return 326.60;
+      if(v<=700000) return 346.60;
+      if(v<=800000) return 366.60;
+      if(v<=900000) return 386.60;
+      if(v<=1000000) return 406.60;
+      if(v<=1100000) return 426.60;
+      if(v<=1200000) return 446.60;
+      if(v<=1300000) return 466.60;
+      if(v<=1400000) return 486.60;
+      if(v<=1500000) return 506.60;
+      if(v<=1600000) return 526.60;
+      if(v<=1700000) return 546.60;
+      if(v<=1800000) return 566.60;
+      if(v<=1900000) return 586.60;
+      if(v<=2000000) return 606.60;
+      const extra=Math.ceil((v-2000000)/100000);
+      return 606.60 + 20*extra;
+    }
+    transferFee=waTransfer(price);
+    mortgageReg=216.60;
+    if(fhb && usage==='oo'){
+      if(isLand){
+        if(price<=350000) duty=0;
+        else if(price<=450000) duty=0.1539*(price-350000);
+        else duty=waGeneral(price);
+      }else if(isHome){
+        const cap = waRegion==='metro' ? 700000 : 750000;
+        if(price<=500000) duty=0;
+        else if(price<=cap){
+          const rate = waRegion==='metro' ? 0.1363 : 0.1190;
+          duty = rate*(price-500000);
+        }else{
+          duty=waGeneral(price);
+        }
+      }else{
+        duty=waGeneral(price);
+      }
+    }else{
+      if(usage==='oo' && price<=200000){
+        duty = waConcessional(price);
+      }else{
+        duty = waGeneral(price);
+      }
+    }
+    if(foreignWA){ surcharge += 0.07*price; }
   }else{
     const brackets=getBrackets(currentState,usage);
     duty=computeGeneralDuty(brackets,price);
   }
 
-  const cons=CONFIG.concessions(currentState,{fhb,pension,price,usage,income,kids,purch});
-  if(cons==='HBCS_FREE'||cons==='PENSION_FREE'||cons==='FHB_FREE')duty=0;
-  else if(cons&&cons.type==='PENSION_REDUCE')duty=Math.max(0,duty-(cons.amount||0));
+  if(currentState==='VIC'){
+    function vicFees(p,method){
+      const units=Math.ceil(p/1000);
+      if(method==='paper'){
+        const t=Math.round((111.80 + 2.34*units));
+        return {transfer:t, mortgage:135.80};
+      }else{
+        const t=Math.min(Math.ceil((101.50 + 2.34*units)),3611.00);
+        return {transfer:t, mortgage:125.70};
+      }
+    }
+    const f=vicFees(price,paymentVIC);
+    transferFee=f.transfer;
+    mortgageReg=f.mortgage;
 
-  if(currentState==='NSW' && foreignNSW){ duty += 0.09*price; }
-  if(currentState==='QLD' && foreignQLD){ duty += 0.08*price; }
+    let generalDuty = computeGeneralDutyVIC(price);
+    let dutyAfterConcessions = generalDuty;
+    let isPPRConcessionAvailable = (usage === 'oo');
+    
+    if(fhb && isPPRConcessionAvailable){
+      if(price <= 600000){
+        dutyAfterConcessions = 0;
+      } else if (price <= 750000){
+        const multiplier = (price - 600000) / 150000;
+        dutyAfterConcessions = Math.max(0, generalDuty * multiplier);
+      } else {
+        dutyAfterConcessions = generalDuty;
+      }
+    }
+    
+    if (!fhb && pensionVIC && isPPRConcessionAvailable && dutyAfterConcessions === generalDuty){
+        if (price <= 600000) {
+             dutyAfterConcessions = 0;
+        } else if (price <= 750000) {
+             const multiplier = (price - 600000) / 150000;
+             dutyAfterConcessions = Math.max(0, generalDuty * multiplier);
+        } else {
+             dutyAfterConcessions = generalDuty;
+        }
+    }
+    
+    if(isPPRConcessionAvailable && dutyAfterConcessions === generalDuty){
+      const pprDuty = computePPRDutyVIC(price);
+      if (pprDuty < generalDuty) {
+        dutyAfterConcessions = pprDuty;
+      }
+    }
+    
+    duty = dutyAfterConcessions;
+
+    if(foreignVIC){
+        surcharge += 0.08 * price;
+    }
+    
+  } else {
+    const cons=CONFIG.concessions(currentState,{fhb,pension,price,usage,income,kids,purch});
+    if(cons==='HBCS_FREE'||cons==='PENSION_FREE'||cons==='FHB_FREE')duty=0;
+    else if(cons&&cons.type==='PENSION_REDUCE')duty=Math.max(0,duty-(cons.amount||0));
+    if(currentState==='NSW' && foreignNSW){ surcharge += 0.09*price; }
+    if(currentState==='QLD' && foreignQLD){ surcharge += 0.08*price; }
+    if(currentState==='SA' && foreignSA){ duty += 0.07*price; }
+    if(currentState==='TAS'){
+      if(fhb && purch==='established' && price<=750000) duty = 0;
+      if(pensionTAS && price<=600000 && (purch==='established' || purch==='new')) duty = duty * 0.5;
+      if(foreignTAS) surcharge += 0.08 * price;
+    }
+  }
 
   let fhog=0, newHomeGrant=0, homeGrant=0;
-  if(currentState==='NSW'){
+  if(currentState==='VIC'){
+    if(fhb && (purch==='new' || purch==='land') && price<=750000){ 
+      fhog = 10000;
+    }
+  } else if(currentState==='NSW'){
     fhog=CONFIG.fhog(currentState,{fhb,price,purch,usage});
+  }else if(currentState==='SA'){
+    fhog=(fhb && purch==='new' && !foreignSA)?15000:0;
   }else if(currentState==='NT'){
     if(purch==='new'){
       homeGrant = fhb ? 50000 : 30000;
@@ -402,22 +746,23 @@ function recalc(){
     }else{
       homeGrant = 0;
     }
+  }else if(currentState==='WA'){
+    if(fhb && usage==='oo' && purch==='new'){ fhog = 10000; } else { fhog = 0; }
   }
 
-  const totalGov=duty+transferFee+mortgageReg;
+  const totalGov = duty + transferFee + mortgageReg + surcharge;
+  const grantTotal = (currentState==='NT') ? homeGrant : (fhog + newHomeGrant);
 
-  byId('dutyOut').textContent=fmtAUD(duty,2);
-  byId('transferOut').textContent=fmtAUD(transferFee,2);
-  byId('mortRegOut').textContent=fmtAUD(mortgageReg,2);
-  byId('totalGovOut').textContent=fmtAUD(totalGov,2);
-  byId('totalFees').textContent=fmtAUD(totalGov,2);
+  byId('dutyOut').textContent = fmtAUD(duty,2);
+  byId('transferOut').textContent = fmtAUD(transferFee,2);
+  byId('mortRegOut').textContent = fmtAUD(mortgageReg,2);
+  byId('totalGovOut').textContent = fmtAUD(totalGov,2);
+  byId('totalFees').textContent = fmtAUD(totalGov,2);
 
-  byId('fhogOut').textContent=fmtAUD(fhog,0);
-  byId('nhgOut').textContent=fmtAUD(newHomeGrant,0);
-  byId('homeGrantOut').textContent=fmtAUD(homeGrant,0);
-
-  const grantTotal = (currentState==='NT') ? homeGrant : (fhog+newHomeGrant);
-  byId('grantTotalOut').textContent=fmtAUD(grantTotal,0);
+  byId('fhogOut').textContent = fmtAUD(fhog,0);
+  byId('nhgOut').textContent = fmtAUD(newHomeGrant,0);
+  byId('homeGrantOut').textContent = fmtAUD(homeGrant,0);
+  byId('grantTotalOut').textContent = fmtAUD(grantTotal,0);
 }
 
 function exportWholeUIToPDF(){
@@ -434,15 +779,16 @@ function exportWholeUIToPDF(){
 }
 
 (function init(){
-  drawTabs();bindChoiceGroups();updateConditionalFields();
+  drawTabs();bindChoiceGroups();
+  updateConditionalFields();
   ['price','income'].forEach(id=>{
     const el=byId(id);
-    if(el){ el.addEventListener('input',recalc,{passive:true}); el.addEventListener('change',recalc,{passive:true}); }
+    if(el){el.addEventListener('input',recalc,{passive:true});el.addEventListener('change',recalc,{passive:true});}
   });
   byId('calcBtn').addEventListener('click',recalc);
   byId('pdfBtn').addEventListener('click',exportWholeUIToPDF);
-  recalc();
 })();
 </script>
+
 </body>
 </html>
